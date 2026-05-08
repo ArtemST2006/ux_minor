@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UX Прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  body {
+    background: linear-gradient(135deg, #1a1235 0%, #0d0820 100%);
+    min-height: 100vh;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 32px 16px; color: #fff;
+  }
+
+  .phone-frame {
+    width: 412px; height: 917px;
+    position: relative;
+    border-radius: 36px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 8px #111;
+    background: #221C6A; overflow: hidden;
+  }
+  .screen-area {
+    position: absolute; top: 0; left: 0;
+    width: 412px; height: 833px;
+    overflow-y: auto; overflow-x: hidden;
+    background: #221C6A; scrollbar-width: none;
+  }
+  .screen-area::-webkit-scrollbar { display: none; }
+  .screen { width: 412px; position: relative; background: #221C6A; display: none; }
+  .screen.active { display: block; }
+  .screen-home, .screen-sleep, .screen-settings, .screen-stub { height: 833px; }
+  .screen-cat  { height: 833px; }
+
+  /* Header */
+  .header-bg {
+    position: absolute; left: 0; top: 0;
+    width: 412px; height: 120px;
+    background: #3B0FA3; border-radius: 0 0 40px 40px;
+  }
+  .status-time { position: absolute; left: 25px; top: 20.52px; color: #fff; font-weight: 700; font-size: 14px; line-height: 1; }
+  .status-signal { position: absolute; left: 318px; top: 10px; width: 22px; height: 13.8px; }
+  .status-wifi   { position: absolute; left: 347px; top: 10px; width: 19.16px; height: 13.76px; }
+  .status-battery{ position: absolute; left: 373px; top: 10px; width: 27px; height: 13.79px; }
+  .avatar {
+    position: absolute; left: 25px; top: 42px; width: 60px; height: 60px;
+    border-radius: 50%;
+    background-image: url('images/avatar-547154.png');
+    background-size: cover; background-position: center top;
+  }
+  .greet { position: absolute; left: 107px; top: 58px; color: #fff; font-weight: 700; font-size: 14px; line-height: 1; }
+  .date  { position: absolute; left: 107px; top: 80px; color: #C6BFEF; font-weight: 700; font-size: 11px; line-height: 1; }
+
+  /* HOME content */
+  .goal-label { position: absolute; left: 25px; top: 163px; color: #FEF9EB; font-weight: 500; font-size: 16px; line-height: 13.78px; }
+  .progress-wrap {
+    position: absolute; left: 31px; top: 188px; width: 127px; height: 127px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .progress-wrap > svg { position: absolute; inset: 0; }
+  .goal-center {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; line-height: 1;
+  }
+  .goal-center .num {
+    color: #FEF9EB; font-weight: 700; font-size: 30px; letter-spacing: -0.02em;
+    display: flex; align-items: baseline;
+  }
+  .goal-center .num .done { font-size: 32px; }
+  .goal-center .num .sep { color: #8C86B9; font-weight: 600; font-size: 22px; margin: 0 1px; }
+  .goal-center .num .target { color: #C6BFEF; font-weight: 600; font-size: 18px; }
+  .goal-center .lbl { margin-top: 6px; color: #C6BFEF; font-weight: 600; font-size: 10px; text-transform: lowercase; letter-spacing: 0.04em; }
+  .card-last {
+    position: absolute; left: 188px; top: 154px; width: 199.3px; height: 178.24px;
+    border-radius: 16.18px; background: #6121C5; overflow: hidden;
+  }
+  .card-last-title { position: absolute; left: -3px; top: 10px; width: 189px; color: #F6F3FF; font-weight: 700; font-size: 14px; text-align: center; }
+  .card-last-sep   { position: absolute; left: 13px; top: 37px; width: 171px; border-top: 2px solid #C6BFEF; opacity: 0.5; }
+  .card-last-chev  { position: absolute; right: 14px; top: 12px; width: 8px; height: 16px; }
+  .card-last-chev img { width: 100%; height: 100%; display: block; }
+  .practice-row {
+    position: absolute; left: 7.5px; width: 182.3px; height: 21.42px;
+    border-radius: 16.18px; color: #fff; font-weight: 600; font-size: 11.42px;
+    line-height: 21.42px; padding-left: 11.9px;
+    cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .card-last { cursor: pointer; transition: transform 120ms ease; }
+  .card-last:active { transform: scale(0.98); }
+  .card-last-empty {
+    position: absolute; left: 12px; right: 12px; top: 70px;
+    text-align: center; color: #C6BFEF; font-weight: 500; font-size: 11px; line-height: 1.4;
+  }
+
+  .fav {
+    position: absolute; left: 31px; top: 367px;
+    width: 355px; height: 54px;
+    border-radius: 22px; background: #F7A8D5;
+    cursor: pointer; transition: transform 120ms ease;
+  }
+  .fav:active { transform: scale(0.98); }
+  .fav-label { position: absolute; left: 16px; top: 9px; color: #fff; font-weight: 600; font-size: 20.17px; line-height: 34.52px; letter-spacing: -0.02em; }
+  .fav-heart { position: absolute; right: 14px; top: 18px; width: 23px; height: 19px; }
+  .fav-heart img { width: 100%; height: 100%; display: block; }
+
+  .list-title { position: absolute; left: 29px; top: 455px; color: #FEF9EB; font-weight: 700; font-size: 20px; line-height: 13.78px; }
+  .cat {
+    position: absolute; left: 31px; width: 355px; height: 77px;
+    border-radius: 22px; cursor: pointer; transition: transform 120ms ease;
+  }
+  .cat:active { transform: scale(0.98); }
+  .cat-1 { top: 508px; background: #F36AB2; }
+  .cat-2 { top: 610px; background: #F6C17A; }
+  .cat-3 { top: 712px; background: #B59AF7; }
+  .cat-icon-bg { position: absolute; left: 14px; top: 14px; width: 49px; height: 49px; border-radius: 19.6px; display: flex; align-items: center; justify-content: center; }
+  .cat-icon-bg img { width: 35.39px; height: 35.39px; display: block; }
+  .cat-label { position: absolute; left: 74px; top: 21px; color: #fff; font-weight: 600; font-size: 20.17px; line-height: 34.52px; letter-spacing: -0.02em; }
+  .cat-chev  { position: absolute; right: 17px; top: 31px; width: 8px; height: 16px; }
+  .cat-chev img { width: 100%; height: 100%; display: block; }
+
+  /* ===== SLEEP screen ===== */
+  .sleep-title {
+    position: absolute; left: 28px; top: 155px; width: 330.03px; height: 39px;
+    color: #FEF9EB; font-weight: 700; font-size: 20.05px; line-height: 38.1px; letter-spacing: -0.02em;
+  }
+  .sleep-card {
+    position: absolute; left: 30px; width: 355px; height: 77px;
+    border-radius: 22px; background: #4712C2; cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .sleep-card:active { transform: scale(0.98); }
+  .sleep-card-bg { position: absolute; left: 14px; top: 14px; width: 49px; height: 49px; border-radius: 19.6px; background: #221C6A; overflow: hidden; }
+  .sleep-card-img { position: absolute; background-size: cover; background-position: center; }
+  .sleep-card-label { position: absolute; left: 74px; top: 21px; color: #fff; font-weight: 600; font-size: 20.17px; line-height: 34.52px; letter-spacing: -0.02em; }
+  .sleep-card-chev { position: absolute; right: 23px; top: 31px; width: 8px; height: 16px; }
+  .sleep-card-chev img { width: 100%; height: 100%; display: block; }
+
+  .sleep-timer-title { position: absolute; left: 28px; top: 529px; width: 330.03px; height: 39px; color: #FEF9EB; font-weight: 700; font-size: 20.05px; line-height: 38.1px; letter-spacing: -0.02em; }
+  .sleep-timer-min, .sleep-timer-max { position: absolute; color: #FEF9EB; font-weight: 500; font-size: 18.03px; line-height: 38.1px; letter-spacing: -0.02em; }
+  .sleep-timer-min { left: 34.06px; top: 595px; }
+  .sleep-timer-max { left: 33px; top: 626.41px; }
+  .sleep-timer-vline { position: absolute; left: 204px; top: 605px; width: 0; height: 211px; border-left: 2px solid #C6BFEF; }
+  .sleep-timer-recommend { position: absolute; left: 219px; top: 605px; color: #FEF9EB; font-weight: 600; font-size: 16.03px; line-height: 15.22px; letter-spacing: -0.02em; }
+  .sleep-timer-time-1 { position: absolute; left: 212.22px; top: 633.41px; color: #FEF9EB; font-weight: 500; font-size: 17.03px; line-height: 26.93px; letter-spacing: -0.02em; white-space: pre; }
+  .sleep-timer-cycle-1 { position: absolute; left: 223.4px; top: 657.63px; color: rgba(254, 249, 235, 0.7); font-weight: 400; font-size: 17.03px; line-height: 26.93px; letter-spacing: -0.02em; }
+  .sleep-timer-hline { position: absolute; left: 30.08px; top: 678px; width: 156px; height: 0; border-top: 4px solid #4712C2; }
+  .sleep-timer-wake  { position: absolute; left: 30px; top: 697px; color: #FEF9EB; font-weight: 500; font-size: 18.03px; line-height: 15.22px; letter-spacing: -0.02em; }
+  .sleep-timer-sleep { position: absolute; left: 30px; top: 729.47px; color: #FEF9EB; font-weight: 500; font-size: 18.03px; line-height: 15.22px; letter-spacing: -0.02em; }
+  .sleep-timer-time-2 { position: absolute; left: 212px; top: 693px; color: #FEF9EB; font-weight: 500; font-size: 17.03px; line-height: 26.93px; letter-spacing: -0.02em; white-space: pre; }
+  .sleep-timer-cycle-2 { position: absolute; left: 222.12px; top: 716.49px; color: rgba(254, 249, 235, 0.7); font-weight: 400; font-size: 17.03px; line-height: 26.93px; letter-spacing: -0.02em; }
+  .sleep-timer-button { position: absolute; left: 20px; top: 769px; width: 169px; height: 34px; border-radius: 14.55px; background: #6121C5; cursor: pointer; transition: transform 120ms ease; }
+  .sleep-timer-button:active { transform: scale(0.97); }
+  .sleep-timer-button span { position: absolute; left: 9.58px; top: 8.93px; color: #FEF9EB; font-weight: 600; font-size: 17.03px; line-height: 15.22px; letter-spacing: -0.02em; }
+
+  /* ===== SETTINGS screen ===== */
+  .set-title {
+    position: absolute; left: 28px; top: 130px; width: 330.03px; height: 39px;
+    color: #FEF9EB; font-weight: 700; font-size: 20.05px; line-height: 38.1px; letter-spacing: -0.02em;
+  }
+  .set-row {
+    position: absolute; left: 31px; width: 366px; height: 38px;
+    border-radius: 14px; background: #3B0FA3; border: 1px solid #B59AF7;
+    cursor: pointer; transition: transform 120ms ease;
+  }
+  .set-row:active { transform: scale(0.99); }
+  .set-row-text {
+    position: absolute; left: 43px; top: 0;
+    color: #F6F3FF; font-weight: 500; font-size: 20.05px; line-height: 38.1px; letter-spacing: -0.02em;
+  }
+  .set-row-text-flush { left: 16px; }
+  .set-row .eye-pupil { position: absolute; left: 17.67px; top: 8px; width: 11.92px; height: 11px; border-radius: 50%; background: #FDFEFD; }
+  .set-row .eye-shape { position: absolute; left: 14px; top: 20.69px; width: 19.25px; height: 9.31px; }
+  .set-row .eye-shape img { width: 100%; height: 100%; display: block; }
+  .set-row .settings-gear { position: absolute; left: 6px; top: -1px; width: 39.12px; height: 40.86px; background-image: url('images/settings_icon-32c4c1.png'); background-size: cover; background-position: center; }
+
+  .set-section {
+    position: absolute; left: 47px; width: 308px; height: 39px;
+    color: #B59AF7; font-weight: 500; font-size: 20.05px; line-height: 38.1px; letter-spacing: -0.02em;
+  }
+
+  /* ===== DIARY/STATS shared widgets ===== */
+  .diary-stat-h { position: absolute; left: 24px; top: 132px; color: #FEF9EB; font-weight: 700; font-size: 18px; line-height: 1; }
+
+  /* Top stats card — matches cal.svg layout (y=165–273, 362×108) */
+  .diary-stat-card {
+    position: absolute; left: 25px; top: 165px; width: 362px; height: 108px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #4B12C2 0%, #3B0FA3 100%);
+  }
+  .diary-stat-icon-wrap {
+    position: absolute; left: 22px; top: 24px;
+    width: 60px; height: 60px;
+  }
+  .diary-stat-icon-wrap .mood-ring {
+    position: absolute; left: 0; top: 0;
+    pointer-events: none;
+  }
+  .diary-stat-icon {
+    position: absolute; left: 50%; top: 50%;
+    width: 38px; height: 38px;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .diary-stat-icon img { width: 100%; height: 100%; display: block; }
+  .diary-stat-title {
+    position: absolute; left: 100px; top: 24px;
+    color: #C6BFEF; opacity: 0.5;
+    font-weight: 600; font-size: 11px; line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .diary-stat-pct-big {
+    position: absolute; left: 100px; top: 40px;
+    display: flex; align-items: baseline; gap: 8px;
+    color: #F6F3FF; font-weight: 700;
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .diary-stat-pct-big .num { font-size: 30px; }
+  .diary-stat-pct-big .lbl { color: #C6BFEF; font-weight: 600; font-size: 12px; opacity: 0.85; }
+  .diary-stat-empty {
+    position: absolute; left: 100px; top: 50px;
+    color: #C6BFEF; font-weight: 600; font-size: 14px;
+  }
+  .diary-stat-legend {
+    position: absolute; left: 100px; top: 80px;
+    display: flex; gap: 18px;
+    color: #C6BFEF; font-weight: 600; font-size: 11px;
+  }
+  .diary-stat-legend .ld { display: inline-flex; align-items: center; gap: 6px; }
+  .diary-stat-legend .ld::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+  .diary-stat-legend .pos::before { background: #F36AB2; }
+  .diary-stat-legend .neu::before { background: #F6C17A; }
+  .diary-stat-legend .neg::before { background: #B59AF7; }
+
+  .diary-cal-h { position: absolute; left: 25px; top: 290px; color: #F6F3FF; font-weight: 700; font-size: 16px; line-height: 1; }
+
+  .diary-legend {
+    position: absolute; left: 25px; right: 25px; top: 318px;
+    display: flex; gap: 22px;
+    color: #C6BFEF; font-weight: 600; font-size: 12px;
+  }
+  .diary-legend .lg { display: inline-flex; align-items: center; gap: 8px; }
+  .diary-legend .lg::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .diary-legend .lg.pos::before { background: #F36AB2; }
+  .diary-legend .lg.neu::before { background: #F6C17A; }
+  .diary-legend .lg.neg::before { background: #B59AF7; }
+
+  .diary-cal-card {
+    position: absolute; left: 25px; top: 343px; width: 362px; height: 261px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, #2C2380 0%, #221C6A 100%);
+    border: 1px solid #3C3768;
+    padding: 14px 16px 16px;
+    box-sizing: border-box;
+  }
+  .diary-cal-month-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .diary-cal-arrow {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #FEF9EB; opacity: 0.85;
+    user-select: none;
+  }
+  .diary-cal-arrow:active { transform: scale(0.9); }
+  .diary-cal-month {
+    color: #FEF9EB; font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+    text-transform: lowercase;
+  }
+  .diary-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; }
+  .diary-cal-day-h { color: #C6BFEF; font-weight: 700; font-size: 11px; text-align: center; padding: 4px 0 6px; }
+  .diary-cal-cell {
+    position: relative; height: 32px; line-height: 32px;
+    text-align: center;
+    color: #FEF9EB; font-weight: 500; font-size: 13px;
+    cursor: pointer; user-select: none;
+    border-radius: 50%;
+    margin: 0 auto;
+    width: 32px;
+  }
+  .diary-cal-cell.dim { color: #6E6996; cursor: default; }
+  .diary-cal-cell.today { background: #F269B7; color: #fff; font-weight: 700; }
+  .diary-cal-cell .mood-ring {
+    position: absolute; left: 0; top: 0;
+    pointer-events: none;
+  }
+  .diary-cal-cell .cell-num { position: relative; z-index: 1; }
+  .diary-cal-cell.selected:not(.today) { box-shadow: inset 0 0 0 2px #FEF9EB; color: #FEF9EB; }
+
+
+  /* ===== HISTORY screen ===== */
+  .screen-history { height: 833px; }
+  .history-h { position: absolute; left: 24px; top: 132px; color: #FEF9EB; font-weight: 700; font-size: 22px; line-height: 1; }
+  .history-sub { position: absolute; left: 24px; right: 24px; top: 162px; color: #C6BFEF; font-weight: 500; font-size: 12px; }
+  .history-card {
+    position: absolute; left: 24px; top: 200px; width: 364px; height: 595px;
+    border-radius: 22px; background: linear-gradient(180deg, #2C2380 0%, #221C6A 100%);
+    border: 1px solid #3C3768;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  .history-empty {
+    text-align: center; padding-top: 60px; color: #C6BFEF; font-weight: 500; font-size: 13px;
+  }
+  .history-row {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(198,191,239,0.18);
+    border-radius: 16px; padding: 10px 12px; margin-bottom: 10px;
+  }
+  .history-row .icon-bg {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .history-row .icon-bg img { width: 22px; height: 22px; display: block; }
+  .history-row .info { flex: 1; min-width: 0; }
+  .history-row .name { color: #FEF9EB; font-weight: 700; font-size: 13px; }
+  .history-row .when { color: #C6BFEF; font-weight: 500; font-size: 11px; margin-top: 2px; }
+  .history-row .replay {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #F269B7;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: transform 120ms ease;
+  }
+  .history-row .replay:active { transform: scale(0.92); }
+  .history-row .replay svg { width: 12px; height: 12px; }
+
+  /* ===== STATS screen ===== */
+  .screen-stats { height: 833px; }
+
+  .stats-notes-panel {
+    position: absolute; left: 25px; top: 624px; width: 362px; height: 209px;
+    border-radius: 26px; background: #FFF8FC;
+    padding: 14px 18px 70px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .stats-notes-title {
+    color: #2B0D64; font-weight: 700; font-size: 12px; margin-bottom: 12px;
+    padding-left: 4px;
+  }
+  .stats-notes-scroll {
+    height: calc(100% - 30px);
+    overflow-y: auto;
+  }
+  .stats-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 12px;
+  }
+  .stats-empty img { width: 90px; height: 70px; display: block; }
+  .stats-empty .t { color: #2D2380; font-weight: 700; font-size: 13px; text-align: center; }
+  .stats-empty .s { color: #6E6996; font-weight: 500; font-size: 11px; text-align: center; line-height: 1.4; }
+
+  .stats-day-group { margin-bottom: 12px; }
+  .stats-day-h { color: #2D2380; font-weight: 700; font-size: 13px; margin-bottom: 8px; padding-left: 4px; }
+  .stats-no-entries { color: #6E6996; font-weight: 500; font-size: 12px; padding: 16px 4px; text-align: center; }
+  .stats-note-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #FFE9F3; border-radius: 100px;
+    padding: 9px 16px;
+    color: #2B0D64; font-weight: 600; font-size: 12px;
+    margin-bottom: 6px;
+    cursor: pointer; transition: transform 120ms ease;
+  }
+  .stats-note-row:active { transform: scale(0.99); }
+  .stats-note-row.neu { background: #FCEFCB; }
+  .stats-note-row.neg { background: #E5DCFC; }
+  .stats-note-row .note-text { flex: 1; padding-right: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stats-note-row .meta { display: flex; align-items: center; gap: 8px; color: #6E6996; font-weight: 500; }
+  .stats-note-row .face { width: 14px; height: 14px; border-radius: 50%; }
+  .stats-note-row.pos .face { background: #F269B7; }
+  .stats-note-row.neu .face { background: #F2C94C; }
+  .stats-note-row.neg .face { background: #B59AF7; }
+
+  .stats-add-btn {
+    position: absolute; left: 115px; top: 767px;
+    width: 184px; height: 44px; border-radius: 22px;
+    background: linear-gradient(180deg, #F36AB2 0%, #D958AA 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #FEF9EB; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: transform 120ms ease;
+    z-index: 2;
+  }
+  .stats-add-btn:active { transform: scale(0.97); }
+
+  /* Note detail modal — usable from any screen */
+  .note-modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(13, 8, 32, 0.7);
+    display: none; z-index: 100;
+  }
+  .note-modal-backdrop.open { display: flex; align-items: center; justify-content: center; }
+  .note-modal {
+    position: relative; width: 320px; max-height: 70%;
+    background: #fff; border-radius: 18px;
+    padding: 18px 20px 22px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  .note-modal-title { color: #2D2380; font-weight: 700; font-size: 16px; margin-bottom: 4px; padding-right: 28px; }
+  .note-modal-meta { color: #6E6996; font-weight: 500; font-size: 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .note-modal-meta .face { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .note-modal-meta.pos .face { background: #F269B7; }
+  .note-modal-meta.neu .face { background: #F2C94C; }
+  .note-modal-meta.neg .face { background: #B59AF7; }
+  .note-modal-body {
+    color: #2D2380; font-weight: 500; font-size: 14px; line-height: 1.45;
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .note-modal-close {
+    position: absolute; right: 14px; top: 12px; width: 22px; height: 22px;
+    cursor: pointer; color: #2D2380;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+
+  /* ===== ZAMETKA (add note) ===== */
+  .screen-zametka { height: 833px; }
+  .zam-card {
+    position: absolute; left: 14px; right: 14px; top: 134px; bottom: 14px;
+    background: linear-gradient(180deg, #2D2380 0%, #221C6A 100%);
+    border-radius: 26px;
+    padding: 22px 22px 18px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  .zam-handle {
+    position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
+    width: 56px; height: 4px; border-radius: 4px; background: #5448A2;
+  }
+  .zam-title { color: #FEF9EB; font-weight: 700; font-size: 21px; margin-top: 6px; letter-spacing: -0.01em; }
+  .zam-close {
+    position: absolute; right: 18px; top: 22px; width: 24px; height: 24px;
+    cursor: pointer; color: #FEF9EB;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; line-height: 1;
+  }
+  .zam-date { color: #C6BFEF; font-weight: 500; font-size: 13px; margin-top: 4px; }
+
+  .zam-section { color: #FEF9EB; font-weight: 700; font-size: 16px; margin-top: 20px; }
+  .zam-section-sub { color: #8C86B9; font-weight: 500; font-size: 12px; margin-top: 4px; }
+
+  .zam-mood-row { display: flex; gap: 14px; margin-top: 14px; justify-content: space-around; }
+  .zam-mood {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer; flex: 1;
+  }
+  .zam-mood-circle {
+    width: 76px; height: 76px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    border: 3px solid transparent;
+    transition: border-color 120ms ease, transform 120ms ease;
+  }
+  .zam-mood:active .zam-mood-circle { transform: scale(0.96); }
+  .zam-mood.pos .zam-mood-circle { background: #F7BCD8; }
+  .zam-mood.neu .zam-mood-circle { background: #F4DFB6; }
+  .zam-mood.neg .zam-mood-circle { background: transparent; }
+  .zam-mood-circle-svg { padding: 0; }
+  .zam-mood-circle-svg svg { width: 70px; height: 70px; display: block; }
+  .zam-mood.active.pos .zam-mood-circle { border-color: #F269B7; }
+  .zam-mood.active.neu .zam-mood-circle { border-color: #F2C94C; }
+  .zam-mood.active.neg .zam-mood-circle { border-color: #B59AF7; }
+  .zam-mood-label { color: #C6BFEF; font-weight: 700; font-size: 12px; }
+  .zam-mood.active.pos .zam-mood-label { color: #F269B7; }
+  .zam-mood.active.neu .zam-mood-label { color: #F2C94C; }
+  .zam-mood.active.neg .zam-mood-label { color: #B59AF7; }
+
+  .zam-textarea-wrap {
+    position: relative; margin-top: 12px;
+    background: #211A66; border: 1px solid #4D4592; border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .zam-textarea {
+    width: 100%; min-height: 80px; resize: none;
+    background: transparent; border: 0; outline: 0;
+    color: #FEF9EB; font-family: inherit; font-size: 14px; line-height: 1.4;
+    display: block;
+  }
+  .zam-textarea::placeholder { color: #7E78AC; }
+  .zam-counter { text-align: right; color: #7E78AC; font-size: 11px; margin-top: 4px; }
+
+  .zam-time-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 14px;
+    background: transparent; border: 1.5px solid #B59AF7; border-radius: 100px;
+    padding: 8px 16px;
+    color: #FEF9EB; font-weight: 600; font-size: 14px;
+    cursor: pointer;
+  }
+  .zam-time-btn:active { transform: scale(0.97); }
+
+  .zam-save-btn {
+    margin: 24px auto 0; display: flex;
+    width: 280px; height: 48px; border-radius: 22px;
+    background: linear-gradient(180deg, #F269B7 0%, #D958AA 100%);
+    align-items: center; justify-content: center;
+    color: #FEF9EB; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: transform 120ms ease;
+    border: 0;
+  }
+  .zam-save-btn:active { transform: scale(0.97); }
+
+  /* ===== STUB screens ===== */
+  .stub-title {
+    position: absolute; left: 0; right: 0; top: 200px; text-align: center;
+    color: #FEF9EB; font-weight: 700; font-size: 28px; letter-spacing: -0.02em;
+  }
+  .stub-text {
+    position: absolute; left: 0; right: 0; top: 248px; text-align: center;
+    color: #C6BFEF; font-weight: 500; font-size: 14px;
+  }
+  .stub-back {
+    position: absolute; left: 18px; top: 130px;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 120ms ease;
+  }
+  .stub-back:active { transform: scale(0.92); }
+  .stub-back svg { width: 14px; height: 14px; }
+  .stub-name {
+    position: absolute; left: 24px; right: 24px; top: 296px;
+    text-align: center; color: #F269B7; font-weight: 700; font-size: 16px;
+  }
+
+  /* Category & favorites cards */
+  .cat-screen-card {
+    position: absolute; left: 22px; top: 130px; width: 368px;
+    border-radius: 28px; background: #2D2380; border: 1px solid #B59AF7;
+    padding: 22px 17px 22px 17px;
+  }
+  .cat-screen-title {
+    color: #FEF9EB; font-weight: 700; font-size: 20px; line-height: 1; letter-spacing: -0.01em;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-screen-title-heart { width: 18px; height: 16px; }
+  .cat-screen-title-heart img { width: 100%; height: 100%; display: block; }
+  .cat-screen-close {
+    position: absolute; right: 18px; top: 18px; width: 22px; height: 22px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: #FEF9EB;
+  }
+  .cat-screen-close svg { width: 100%; height: 100%; }
+
+  .cat-item {
+    position: relative; width: 333px; height: 64px;
+    border-radius: 18px; margin-bottom: 12px;
+  }
+  .cat-item:last-child { margin-bottom: 0; }
+  .cat-item-icon {
+    position: absolute; left: 8px; top: 8px; width: 47px; height: 47px;
+    border-radius: 17px; display: flex; align-items: center; justify-content: center;
+  }
+  .cat-item-icon img, .cat-item-icon svg { width: 30px; height: 30px; display: block; }
+  .cat-item-title { position: absolute; left: 64px; top: 13px; color: #fff; font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; }
+  .cat-item-sub   { position: absolute; left: 64px; top: 36px; color: #fff; font-weight: 500; font-size: 11px; opacity: 0.85; }
+  .cat-item-heart {
+    position: absolute; right: 16px; top: 22px; width: 22px; height: 19px;
+    cursor: pointer; padding: 6px; box-sizing: content-box;
+    margin: -6px;
+  }
+  .cat-item-heart svg { width: 22px; height: 19px; display: block; }
+
+  .breathing-item   { background: #F36AB2; }
+  .breathing-icon   { background: #B95087; }
+  .physical-item    { background: #F6C17A; }
+  .physical-item.dark { background: #8A3C5A; }
+  .physical-icon    { background: #C79A5E; }
+  .physical-icon.dark { background: #6B2D44; }
+  .thinking-item    { background: #B59AF7; }
+  .thinking-icon    { background: #9A83D2; }
+
+  /* Favorites: add-button */
+  .fav-add-btn {
+    position: relative; margin-top: 18px;
+    width: 230px; height: 38px; left: 50%; transform: translateX(-50%);
+    border-radius: 100px;
+    background: linear-gradient(180deg, #E58CBA 0%, #C46FA0 100%);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #FEF9EB; font-weight: 600; font-size: 13.5px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fav-empty {
+    color: rgba(254,249,235,0.6); font-size: 13px; text-align: center;
+    padding: 24px 0;
+  }
+
+  /* ========== PRACTICE STEP SCREENS ========== */
+  .screen-practice { height: 833px; }
+  .practice-step-label { position: absolute; left: 25px; top: 137px; color: #CBC3F2; font-weight: 700; font-size: 12px; line-height: 1; }
+  .practice-percent    { position: absolute; right: 25px; top: 137px; color: #CBC3F2; font-weight: 700; font-size: 12px; line-height: 1; text-align: right; }
+  .practice-pbar-bg    { position: absolute; left: 25px; top: 159px; width: 362px; height: 7px; background: #2B2F67; border-radius: 4px; overflow: hidden; }
+  .practice-pbar-fill  { height: 7px; background: #F269B7; border-radius: 4px; width: 100%; transition: width 100ms linear; }
+  .practice-title      { position: absolute; left: 25px; top: 183px; width: 320px; color: #F7F3FF; font-weight: 700; font-size: 30px; line-height: 1.2; white-space: pre-line; }
+
+  .practice-pic-card {
+    position: absolute; left: 25px; top: 272px; width: 362px; height: 256px;
+    border-radius: 28px; overflow: hidden;
+    background: linear-gradient(180deg, #302A66 0%, #221D4C 100%);
+    border: 1px solid #3C3768;
+  }
+  .practice-pic-img {
+    position: absolute; top: 15px; height: 225px;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+  }
+  .practice-rhythm-card {
+    position: absolute; left: 25px; top: 540px; width: 362px; height: 70px;
+    border-radius: 35px;
+    background: linear-gradient(180deg, #312962 0%, #221D49 100%);
+    border: 1px solid #40396D;
+  }
+  .practice-rhythm-flower { position: absolute; left: 25px; top: 21px; width: 27px; height: 25px; }
+  .practice-rhythm-main { position: absolute; left: 60px; top: 18px; right: 18px; color: #F7F3FF; font-weight: 700; font-size: 13px; line-height: 16px; }
+  .practice-rhythm-sub  { position: absolute; left: 60px; top: 38px; right: 18px; color: #8C86B9; font-weight: 700; font-size: 12px; line-height: 14px; }
+  .practice-rhythm-card .practice-rhythm-flower,
+  .practice-rhythm-card .practice-rhythm-main,
+  .practice-rhythm-card .practice-rhythm-sub { position: absolute; }
+
+  .practice-caption {
+    position: absolute; left: 0; right: 0; top: 628px; padding: 0 30px;
+    text-align: center; color: #CBC3F2; font-weight: 700; font-size: 14px; line-height: 18px;
+    white-space: pre-line;
+  }
+
+  .practice-rhythm-label { position: absolute; left: 47px; top: 726px; color: #8C86B9; font-weight: 700; font-size: 12px; line-height: 1; }
+  .practice-rhythm-time  { position: absolute; right: 47px; top: 725px; color: #FFB6DD; font-weight: 700; font-size: 13px; line-height: 1; text-align: right; }
+
+  .practice-ctrl-prev, .practice-ctrl-next {
+    position: absolute; top: 757px; width: 42px; height: 42px;
+    border-radius: 50%; background: #30295B;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 120ms ease, opacity 120ms ease;
+  }
+  .practice-ctrl-prev { left: 131px; }
+  .practice-ctrl-next { left: 239px; }
+  .practice-ctrl-prev:active, .practice-ctrl-next:active { transform: scale(0.93); }
+  .practice-ctrl-prev.disabled { opacity: 0.4; cursor: default; }
+
+  .practice-ctrl-play {
+    position: absolute; left: 178px; top: 750px; width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #F269B7 0%, #D958AA 100%);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 120ms ease;
+  }
+  .practice-ctrl-play:active { transform: scale(0.95); }
+  .practice-pause-icon { display: flex; gap: 6px; }
+  .practice-pause-icon span { width: 5px; height: 20px; background: #F7F3FF; border-radius: 1px; display: block; }
+  .practice-play-icon { width: 0; height: 0; margin-left: 5px;
+    border-style: solid; border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent #F7F3FF;
+  }
+
+  /* ========== TIP SCREEN (Совет) ========== */
+  .screen-tip { height: 833px; }
+  .tip-step-label { position: absolute; left: 25px; top: 137px; color: #CBC3F2; font-weight: 700; font-size: 12px; line-height: 1; }
+  .tip-percent    { position: absolute; right: 25px; top: 137px; color: #CBC3F2; font-weight: 700; font-size: 12px; line-height: 1; text-align: right; }
+  .tip-pbar-bg    { position: absolute; left: 25px; top: 159px; width: 362px; height: 7px; background: #2B2F67; border-radius: 4px; overflow: hidden; }
+  .tip-pbar-fill  { width: 100%; height: 7px; background: #F269B7; border-radius: 4px; }
+  .tip-title {
+    position: absolute; left: 25px; top: 183px; width: 360px;
+    color: #F7F3FF; font-weight: 700; font-size: 30px; line-height: 1.18; letter-spacing: -0.01em;
+  }
+  .tip-card {
+    position: absolute; left: 25px; top: 280px; width: 362px; height: 410px;
+    border-radius: 28px; padding: 22px 22px;
+    background: linear-gradient(180deg, #302A66 0%, #221D4C 100%);
+    border: 1px solid #3C3768;
+    color: #F7F3FF; font-weight: 500; font-size: 14px; line-height: 1.45;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .tip-card p { margin: 0 0 11px 0; }
+  .tip-card p:last-child { margin-bottom: 0; }
+  .tip-card .lead { color: #F7F3FF; }
+  .tip-card .closing { color: #F7F3FF; }
+  .tip-btn-finish {
+    position: absolute; left: 41px; top: 720px; width: 330px; height: 54px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #F269B7 0%, #D958AA 100%);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #FEF9EB; font-weight: 700; font-size: 16.5px;
+    cursor: pointer; transition: transform 120ms ease;
+  }
+  .tip-btn-finish:active { transform: scale(0.97); }
+  .tip-btn-finish .heart {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 16px;
+  }
+  .tip-btn-finish .heart svg { width: 100%; height: 100%; display: block; }
+
+  /* ========== COMPLETION SCREEN ========== */
+  .screen-completion { height: 833px; }
+  .comp-badge {
+    position: absolute; left: 166px; top: 147px; width: 86px; height: 86px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+  .comp-badge::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    border: 3px solid #FFB6DD; opacity: 0.65;
+  }
+  .comp-badge-inner {
+    position: relative; width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(180deg, #312962 0%, #221D49 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .comp-title {
+    position: absolute; left: 0; right: 0; top: 237px;
+    text-align: center; color: #FFB6DD; font-weight: 700; font-size: 30px; line-height: 36px;
+  }
+
+  .comp-card {
+    position: absolute; left: 25px; top: 291px; width: 362px; height: 256px;
+    border-radius: 28px; overflow: hidden;
+    background: linear-gradient(180deg, #302A66 0%, #221D4C 100%);
+    border: 1px solid #3C3768;
+  }
+  .comp-card-img {
+    position: absolute; left: 27px; top: 17px; width: 308px; height: 221px;
+    background-image: url('images/completion_card-ea93d2.png');
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+  }
+
+  .comp-card-title {
+    position: absolute; left: 0; right: 0; top: 555px;
+    text-align: center; color: #CBC3F2; font-weight: 700; font-size: 17px; line-height: 21px;
+  }
+  .comp-card-sub {
+    position: absolute; left: 0; right: 0; top: 576px;
+    text-align: center; color: #8C86B9; font-weight: 700; font-size: 12px; line-height: 15px;
+  }
+
+  .mood-card {
+    position: absolute; top: 617px; width: 110px; height: 84px; border-radius: 14px;
+    background: #2C2758; border: 1.2px solid #45406E;
+    cursor: pointer;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  }
+  .mood-card:active { transform: scale(0.97); }
+  .mood-card.active { background: #342965; border-color: #FFB6DD; }
+  .mood-card[data-mood="0"] { left: 25px; }
+  .mood-card[data-mood="1"] { left: 151px; }
+  .mood-card[data-mood="2"] { left: 277px; }
+  .mood-bg {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+    width: 36px; height: 36px; border-radius: 50%; background: #3A3567;
+  }
+  .mood-emoji {
+    position: absolute; left: 0; right: 0; top: 18px;
+    text-align: center; font-size: 18px; line-height: 18px;
+  }
+  .mood-label {
+    position: absolute; left: 0; right: 0; bottom: 11px;
+    text-align: center; color: #CBC3F2; font-weight: 700; font-size: 12px; line-height: 15px;
+  }
+  .mood-card.active .mood-label { color: #FFB6DD; }
+
+  .comp-duration {
+    position: absolute; left: 97px; top: 719px; width: 223px; height: 32px;
+    background: #26214F; border: 1px solid #40396D; border-radius: 14px;
+    text-align: center; line-height: 30px;
+    color: #CBC3F2; font-weight: 700; font-size: 12px;
+  }
+
+  .comp-btn {
+    position: absolute; top: 769px; width: 152px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-weight: 700; font-size: 13px; color: #F7F3FF;
+    transition: transform 120ms ease;
+  }
+  .comp-btn:active { transform: scale(0.97); }
+  .comp-btn-repeat { left: 38px; background: #2C2758; border: 1px solid #474072; }
+  .comp-btn-exit   { left: 208px; background: linear-gradient(180deg, #F269B7 0%, #D958AA 100%); }
+
+  /* FIXED BOTTOM NAV */
+  .nav-bar { position: absolute; left: 0; bottom: 0; width: 412px; height: 84px; background: #09133D; z-index: 10; }
+  .nav-indicator { position: absolute; left: 139px; top: 70px; width: 134px; height: 4px; opacity: 0.95; }
+  .nav-indicator img { width: 100%; height: 100%; display: block; }
+  .nav-item {
+    position: absolute; top: 11px; width: 64px;
+    text-align: center; cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .nav-item:active { transform: scale(0.92); }
+  .nav-icon {
+    width: 26px; height: 26px;
+    display: block; margin: 0 auto;
+    pointer-events: none;
+  }
+  .nav-label {
+    display: block; margin-top: 8px;
+    color: #8B87B4; font-weight: 700; font-size: 10px; line-height: 1; white-space: nowrap;
+    pointer-events: none;
+  }
+  .nav-item.active .nav-label { color: #F6F3FF; }
+  #nav-practices { left: 9px; }
+  #nav-sleep     { left: 92px; }
+  #nav-diary     { left: 174px; }
+  #nav-stats     { left: 256px; }
+  #nav-settings  { left: 339px; }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="screen-area" id="scrollArea">
+
+      <!-- ========== HOME (Практики) ========== -->
+      <section class="screen screen-home active" id="screen-home">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="goal-label">Прогресс по цели</div>
+        <div class="progress-wrap">
+          <svg width="127" height="128" viewBox="0 0 127 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goalArcGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"   stop-color="#F269B7"/>
+                <stop offset="100%" stop-color="#B95087"/>
+              </linearGradient>
+              <filter id="goalArcGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <circle cx="63.5" cy="64" r="56.5" fill="none" stroke="#2E2A5C" stroke-width="13"/>
+            <circle id="goal-progress-arc" cx="63.5" cy="64" r="56.5" fill="none"
+                    stroke="url(#goalArcGrad)" stroke-width="13" stroke-linecap="round"
+                    stroke-dasharray="0 354.85" transform="rotate(-90 63.5 64)"
+                    filter="url(#goalArcGlow)"/>
+          </svg>
+          <div class="goal-center">
+            <div class="num">
+              <span class="done" id="goal-done">0</span>
+              <span class="sep">/</span>
+              <span class="target" id="goal-target">10</span>
+            </div>
+            <div class="lbl">практик</div>
+          </div>
+        </div>
+
+        <div class="card-last" onclick="showScreen('history')">
+          <div class="card-last-title">Последние практики</div>
+          <div class="card-last-sep"></div>
+          <div class="card-last-chev"><img src="images/chev.svg" alt=""></div>
+          <div id="card-last-rows"></div>
+        </div>
+
+        <div class="fav" onclick="showScreen('favorites')">
+          <div class="fav-label">Любимые практики</div>
+          <div class="fav-heart"><img src="images/heart.svg" alt=""></div>
+        </div>
+
+        <div class="list-title">Список практик</div>
+
+        <div class="cat cat-1" onclick="showScreen('breathing')">
+          <div class="cat-icon-bg" style="background:#B95087"><img src="images/icon_breathing.svg" alt=""></div>
+          <div class="cat-label">Дыхательные</div>
+          <div class="cat-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+        <div class="cat cat-2" onclick="showScreen('physical')">
+          <div class="cat-icon-bg" style="background:#C79A5E"><img src="images/icon_physical.svg" alt=""></div>
+          <div class="cat-label">Физические</div>
+          <div class="cat-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+        <div class="cat cat-3" onclick="showScreen('thinking')">
+          <div class="cat-icon-bg" style="background:#9A83D2"><img src="images/icon_thinking.svg" alt=""></div>
+          <div class="cat-label">Мыслительные</div>
+          <div class="cat-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+      </section>
+
+      <!-- ========== SLEEP ========== -->
+      <section class="screen screen-sleep" id="screen-sleep">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="sleep-title sleep-title-top">Список практик для засыпания</div>
+
+        <div class="sleep-card" style="top: 213px;">
+          <div class="sleep-card-bg"></div>
+          <div class="sleep-card-img" style="left: 4px; top: 4px; width: 58.78px; height: 70.81px; background-image:url('images/sleep_auto-2d0415.png');"></div>
+          <div class="sleep-card-label">Медитация</div>
+          <div class="sleep-card-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+        <div class="sleep-card" style="top: 315px;">
+          <div class="sleep-card-bg"></div>
+          <div class="sleep-card-img" style="left: 15px; top: 9px; width: 48.53px; height: 55.85px; background-image:url('images/sleep_music-13b8e2.png');"></div>
+          <div class="sleep-card-label">Музыка</div>
+          <div class="sleep-card-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+        <div class="sleep-card" style="top: 417px;">
+          <div class="sleep-card-bg"></div>
+          <div class="sleep-card-img" style="left: 12px; top: 9px; width: 61.08px; height: 59.92px; background-image:url('images/sleep_med-48d5c7.png');"></div>
+          <div class="sleep-card-label">Аутотренинги</div>
+          <div class="sleep-card-chev"><img src="images/chev.svg" alt=""></div>
+        </div>
+
+        <div class="sleep-timer-title">Счетчик времени для сна</div>
+        <div class="sleep-timer-min">min:&nbsp; 4 часа</div>
+        <div class="sleep-timer-max">max:&nbsp;&nbsp; 9 часов</div>
+        <div class="sleep-timer-vline"></div>
+        <div class="sleep-timer-recommend">Рекомендуемое время </div>
+        <div class="sleep-timer-time-1">  - 04:00 </div>
+        <div class="sleep-timer-cycle-1">Сон: 6.0ч - 4 цикла</div>
+        <div class="sleep-timer-hline"></div>
+        <div class="sleep-timer-time-2">  - 05:30 </div>
+        <div class="sleep-timer-cycle-2">Сон: 4,5ч - 3 цикла</div>
+        <div class="sleep-timer-wake">Пробуждение: -</div>
+        <div class="sleep-timer-sleep">Засыпание: 23:30</div>
+        <div class="sleep-timer-button"><span>Рассчитать время</span></div>
+      </section>
+
+      <!-- ========== SETTINGS ========== -->
+      <section class="screen screen-settings" id="screen-settings">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="set-title">О приложении</div>
+
+        <div class="set-row" style="top: 175px;">
+          <div class="eye-pupil"></div>
+          <div class="eye-shape"><img src="images/subtract.svg" alt=""></div>
+          <span class="set-row-text">Персональные настройки</span>
+        </div>
+        <div class="set-row" style="top: 232px;">
+          <div class="settings-gear"></div>
+          <span class="set-row-text">Настройки приложения</span>
+        </div>
+
+        <div class="set-section" style="top: 305px;">Обратная связь</div>
+        <div class="set-row" style="top: 350px;"><span class="set-row-text set-row-text-flush">Предложить улучшение</span></div>
+        <div class="set-row" style="top: 403px;"><span class="set-row-text set-row-text-flush">Сообщить о проблеме</span></div>
+
+        <div class="set-section" style="top: 471px;">APP STORE</div>
+        <div class="set-row" style="top: 511px;"><span class="set-row-text set-row-text-flush">Поделиться приложением</span></div>
+        <div class="set-row" style="top: 568px; height: 37px;"><span class="set-row-text set-row-text-flush">Оценить приложение</span></div>
+      </section>
+
+      <!-- ========== PRACTICE STUB ========== -->
+      <section class="screen screen-stub" id="screen-practice-stub">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="stub-back" onclick="showScreen('home')">
+          <svg viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 1 L3 7 L9 13" stroke="#FFB6DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stub-title">Практика</div>
+        <div class="stub-text">Раздел в разработке</div>
+        <div class="stub-name" id="practice-stub-name"></div>
+      </section>
+
+      <!-- ========== DIARY (stub) ========== -->
+      <section class="screen screen-stub" id="screen-diary">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="stub-title">Дневник</div>
+        <div class="stub-text">Раздел в разработке</div>
+      </section>
+
+      <!-- ========== ZAMETKA (Add Mood Note) ========== -->
+      <section class="screen screen-zametka" id="screen-zametka">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="zam-card">
+          <div class="zam-handle"></div>
+          <div class="zam-title">Добавить настроение</div>
+          <div class="zam-close" onclick="zamClose()">✕</div>
+          <div class="zam-date" id="zam-date">25 апреля 2026</div>
+
+          <div class="zam-section">Какое у тебя настроение?</div>
+          <div class="zam-section-sub">Выбери то, что ближе всего</div>
+
+          <div class="zam-mood-row">
+            <div class="zam-mood pos" data-mood="pos" onclick="zamSelectMood('pos')">
+              <div class="zam-mood-circle">🙂</div>
+              <div class="zam-mood-label">Позитивное</div>
+            </div>
+            <div class="zam-mood neu" data-mood="neu" onclick="zamSelectMood('neu')">
+              <div class="zam-mood-circle">😐</div>
+              <div class="zam-mood-label">Нейтральное</div>
+            </div>
+            <div class="zam-mood neg" data-mood="neg" onclick="zamSelectMood('neg')">
+              <div class="zam-mood-circle zam-mood-circle-svg">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 60C46.5685 60 60 46.5685 60 30C60 13.4315 46.5685 0 30 0C13.4315 0 0 13.4315 0 30C0 46.5685 13.4315 60 30 60Z" fill="#B59AF7"/>
+                </svg>
+              </div>
+              <div class="zam-mood-label">Негативное</div>
+            </div>
+          </div>
+
+          <div class="zam-section">Заметка (необязательно)</div>
+          <div class="zam-section-sub">Поделись своими мыслями или тем, что произошло</div>
+
+          <div class="zam-textarea-wrap">
+            <textarea id="zam-text" class="zam-textarea" placeholder="Напиши заметку..." maxlength="500" oninput="zamUpdateCounter()"></textarea>
+            <div class="zam-counter"><span id="zam-counter">0</span>/500</div>
+          </div>
+
+          <div class="zam-section">Время</div>
+          <div class="zam-section-sub">Укажи время, когда ты отметил(-а) настроение</div>
+
+          <div class="zam-time-btn" onclick="zamBumpTime()">
+            🕐 <span id="zam-time">14:30</span> ›
+          </div>
+
+          <button class="zam-save-btn" onclick="zamSave()">Сохранить настроение</button>
+        </div>
+      </section>
+
+      <!-- ========== STATS (placeholder) ========== -->
+      <!-- ========== HISTORY ========== -->
+      <section class="screen screen-history" id="screen-history">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="history-h">История практик</div>
+        <div class="history-sub">Все пройденные практики</div>
+        <div class="history-card" id="history-card"></div>
+      </section>
+
+      <section class="screen screen-stats" id="screen-stats">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="diary-stat-h">Твоя статистика</div>
+        <div class="diary-stat-card">
+          <div class="diary-stat-icon-wrap" id="diary-stat-icon-wrap">
+            <div class="diary-stat-icon"><img id="diary-stat-icon-img" src="images/face_stats.svg" alt=""></div>
+          </div>
+          <div class="diary-stat-title">Эмоции в этом месяце</div>
+          <div id="diary-stat-content"></div>
+        </div>
+
+        <div class="diary-cal-h">Календарь эмоций</div>
+        <div class="diary-legend">
+          <span class="lg pos">Позитивные</span>
+          <span class="lg neu">Нейтральные</span>
+          <span class="lg neg">Негативные</span>
+        </div>
+
+        <div class="diary-cal-card">
+          <div class="diary-cal-month-bar">
+            <div class="diary-cal-arrow" onclick="diaryPrevMonth()">‹</div>
+            <div class="diary-cal-month" id="diary-cal-month">апрель 2026</div>
+            <div class="diary-cal-arrow" onclick="diaryNextMonth()">›</div>
+          </div>
+          <div class="diary-cal-grid" id="diary-cal-grid"></div>
+        </div>
+
+        <div class="stats-notes-panel" id="stats-notes-panel"></div>
+        <div class="stats-add-btn" onclick="diaryOpenAddSelected()">+ Добавить настроение</div>
+      </section>
+
+      <!-- ========== BREATHING ========== -->
+      <section class="screen screen-cat" id="screen-breathing">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="cat-screen-card">
+          <div class="cat-screen-close" onclick="showScreen('home')">
+            <svg viewBox="0 0 22 22" fill="none"><path d="M5 5 L17 17 M17 5 L5 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="cat-screen-title">Дыхательные практики</div>
+          <div id="breathing-list"></div>
+        </div>
+      </section>
+
+      <!-- ========== PHYSICAL ========== -->
+      <section class="screen screen-cat" id="screen-physical">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="cat-screen-card">
+          <div class="cat-screen-close" onclick="showScreen('home')">
+            <svg viewBox="0 0 22 22" fill="none"><path d="M5 5 L17 17 M17 5 L5 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="cat-screen-title">Физические практики</div>
+          <div id="physical-list"></div>
+        </div>
+      </section>
+
+      <!-- ========== THINKING ========== -->
+      <section class="screen screen-cat" id="screen-thinking">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="cat-screen-card">
+          <div class="cat-screen-close" onclick="showScreen('home')">
+            <svg viewBox="0 0 22 22" fill="none"><path d="M5 5 L17 17 M17 5 L5 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="cat-screen-title">Мыслительные практики</div>
+          <div id="thinking-list"></div>
+        </div>
+      </section>
+
+      <!-- ========== PRACTICE STEP (shared screen, content rendered by JS) ========== -->
+      <section class="screen screen-practice" id="screen-practice">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="practice-step-label" id="practice-step-label">Шаг 1 из 3 (Правая рука)</div>
+        <div class="practice-percent"    id="practice-percent">100%</div>
+        <div class="practice-pbar-bg"><div class="practice-pbar-fill" id="practice-pbar-fill"></div></div>
+        <div class="practice-title"      id="practice-title">Защитный круг:&#10;Надавливание</div>
+
+        <div class="practice-pic-card">
+          <div class="practice-pic-img" id="practice-pic-img"></div>
+        </div>
+        <div class="practice-caption" id="practice-caption">Надавите на центр ладони правой руки.</div>
+
+        <div class="practice-rhythm-card">
+          <div class="practice-rhythm-flower">
+            <svg width="27" height="25" viewBox="22 22 30 26" xmlns="http://www.w3.org/2000/svg">
+              <path d="M39.5 24.5C39.5 23.3954 38.6046 22.5 37.5 22.5C36.3954 22.5 35.5 23.3954 35.5 24.5V43.5C35.5 44.6046 36.3954 45.5 37.5 45.5C38.6046 45.5 39.5 44.6046 39.5 43.5V24.5Z" fill="#FFB6DD"/>
+              <path d="M24.5 34.5125C24.5 28.5182 30 24.5221 35.5 27.5192V47.5C27.8 45.5019 24.5 40.5067 24.5 34.5125Z" fill="#FFD3E8"/>
+              <path d="M51.5 34.5125C51.5 28.5182 45.5 24.5221 39.5 27.5192V47.5C47.9 45.5019 51.5 40.5067 51.5 34.5125Z" fill="#F29FD0"/>
+            </svg>
+          </div>
+          <div class="practice-rhythm-main" id="practice-rhythm-main">Медленно сделайте вдох при надавливании</div>
+          <div class="practice-rhythm-sub"  id="practice-rhythm-sub"></div>
+        </div>
+
+        <div class="practice-rhythm-label">Ритм</div>
+        <div class="practice-rhythm-time" id="practice-rhythm-time">01:00</div>
+
+        <div class="practice-ctrl-prev" id="practice-ctrl-prev" onclick="practicePrev()">
+          <svg width="14" height="14" viewBox="0 0 12 14" fill="none">
+            <path d="M9 1 L3 7 L9 13" stroke="#FFB6DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="practice-ctrl-play" onclick="practiceTogglePause()">
+          <div class="practice-pause-icon" id="practice-pause-icon"><span></span><span></span></div>
+          <div class="practice-play-icon"  id="practice-play-icon" style="display:none"></div>
+        </div>
+        <div class="practice-ctrl-next" onclick="practiceNext()">
+          <svg width="14" height="14" viewBox="0 0 12 14" fill="none">
+            <path d="M3 1 L9 7 L3 13" stroke="#FFB6DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- ========== TIP (Совет) ========== -->
+      <section class="screen screen-tip" id="screen-tip">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="tip-step-label">Шаг 1 из 1</div>
+        <div class="tip-percent">100%</div>
+        <div class="tip-pbar-bg"><div class="tip-pbar-fill"></div></div>
+
+        <div class="tip-title">Советы для фокуса&#10;внимания</div>
+
+        <div class="tip-card">
+          <p class="lead">Желательно не пить перед экзаменами слишком много чая, кофе и газированных напитков.</p>
+          <p>🌶 Кофеин возбуждает мозг и делает его невосприимчивым к перегрузке.</p>
+          <p>🍊 Лучше съесть апельсин, банан или грецкие орехи.</p>
+          <p>⚡ Многие студенты знают о приливах сил после шоколада.</p>
+          <p>Некоторые заедаются сладким в период сессии, но эффект бодрости короткий и длится не так долго, как кажется.</p>
+          <p class="closing">Сделайте осознанный выбор. Дышите спокойно. Примените этот совет для ясности ума и ровной энергии.</p>
+        </div>
+
+        <div class="tip-btn-finish" onclick="finishTip()">
+          <span>Завершить совет и применить</span>
+          <span class="heart">
+            <svg viewBox="0 0 23 19" xmlns="http://www.w3.org/2000/svg" fill="#FEF9EB">
+              <path d="M16.675 0C14.674 0 12.7535 0.84 11.5 2.16C10.2465 0.84 8.326 0 6.325 0C2.78 0 0 2.5 0 5.69C0 9.6 3.91 12.8 9.83 17.64L11.5 19L13.17 17.64C19.09 12.8 23 9.6 23 5.69C23 2.5 20.22 0 16.675 0Z"/>
+            </svg>
+          </span>
+        </div>
+      </section>
+
+      <!-- ========== COMPLETION ========== -->
+      <section class="screen screen-completion" id="screen-completion">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+
+        <div class="comp-badge">
+          <div class="comp-badge-inner">
+            <svg width="26" height="20" viewBox="0 0 26 20" fill="none">
+              <path d="M3 11 L10 17 L23 3" stroke="#FFB6DD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="comp-title">Практика завершена!</div>
+
+        <div class="comp-card">
+          <div class="comp-card-img" id="comp-card-img"></div>
+        </div>
+
+        <div class="comp-card-title">Оцените ваше состояние</div>
+        <div class="comp-card-sub">Выберите вашу эмоцию</div>
+
+        <div class="mood-card" data-mood="0" onclick="selectMood(0)">
+          <div class="mood-bg"></div>
+          <div class="mood-emoji">🙂</div>
+          <div class="mood-label">Спокойнее</div>
+        </div>
+        <div class="mood-card" data-mood="1" onclick="selectMood(1)">
+          <div class="mood-bg"></div>
+          <div class="mood-emoji">😐</div>
+          <div class="mood-label">Стабильно</div>
+        </div>
+        <div class="mood-card" data-mood="2" onclick="selectMood(2)">
+          <div class="mood-bg"></div>
+          <div class="mood-emoji">☹</div>
+          <div class="mood-label">Напряжение</div>
+        </div>
+
+        <div class="comp-duration">Продолжительность: 5 минут</div>
+
+        <div class="comp-btn comp-btn-repeat" onclick="repeatPractice()">Повторить практику</div>
+        <div class="comp-btn comp-btn-exit"   onclick="exitPractice()">Завершить и выйти</div>
+      </section>
+
+      <!-- ========== FAVORITES ========== -->
+      <section class="screen screen-cat" id="screen-favorites">
+        <div class="header-bg"></div>
+        <div class="status-time">9:41</div>
+        <img class="status-signal" src="images/signal.svg" alt="">
+        <img class="status-wifi" src="images/wifi.svg" alt="">
+        <img class="status-battery" src="images/battery.svg" alt="">
+        <div class="avatar"></div>
+        <div class="greet">Привет, Анна!</div>
+        <div class="date">Чт, 25 янв 2026</div>
+        <div class="cat-screen-card">
+          <div class="cat-screen-close" onclick="showScreen('home')">
+            <svg viewBox="0 0 22 22" fill="none"><path d="M5 5 L17 17 M17 5 L5 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="cat-screen-title">
+            <span class="cat-screen-title-heart"><img src="images/heart.svg" alt=""></span>
+            Любимые практики
+          </div>
+          <div id="favorites-list"></div>
+          <div class="fav-add-btn" onclick="showScreen('home')">+ Добавить практику</div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- GLOBAL NOTE MODAL -->
+    <div class="note-modal-backdrop" id="note-modal-backdrop" onclick="closeNoteDetail(event)">
+      <div class="note-modal" onclick="event.stopPropagation()">
+        <div class="note-modal-close" onclick="closeNoteDetail()">✕</div>
+        <div class="note-modal-title" id="note-modal-title">Заметка</div>
+        <div class="note-modal-meta" id="note-modal-meta">
+          <span class="face"></span><span id="note-modal-meta-text"></span>
+        </div>
+        <div class="note-modal-body" id="note-modal-body"></div>
+      </div>
+    </div>
+
+    <!-- FIXED BOTTOM NAV -->
+    <div class="nav-bar">
+      <div class="nav-indicator"><img src="images/home_indicator.svg" alt=""></div>
+      <div class="nav-item" id="nav-practices" onclick="showScreen('home')">
+        <img class="nav-icon" src="images/nav_cards.svg" alt="">
+        <div class="nav-label">Практики</div>
+      </div>
+      <div class="nav-item" id="nav-sleep" onclick="showScreen('sleep')">
+        <img class="nav-icon" src="images/nav_bedtime.svg" alt="">
+        <div class="nav-label">Сон</div>
+      </div>
+      <div class="nav-item" id="nav-diary" onclick="showScreen('diary')">
+        <img class="nav-icon" src="images/nav_book.svg" alt="">
+        <div class="nav-label">Дневник</div>
+      </div>
+      <div class="nav-item" id="nav-stats" onclick="showScreen('stats')">
+        <img class="nav-icon" src="images/nav_chart.svg" alt="">
+        <div class="nav-label">Статистика</div>
+      </div>
+      <div class="nav-item" id="nav-settings" onclick="showScreen('settings')">
+        <img class="nav-icon" src="images/nav_settings.svg" alt="">
+        <div class="nav-label">Настройки</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Reset persisted state on every page load
+  try {
+    localStorage.removeItem('moodsByDate');
+    localStorage.removeItem('practiceHistory');
+  } catch (e) {}
+
+  // ====== Practice catalog ======
+  const PRACTICES = [
+    {id:'breathing-1', name:'Защитный круг',          cat:'breathing', sub:'1-3 мин',  favSub:'Дыхательная',  marker:true},
+    {id:'breathing-2', name:'Дыхательная гимнастика', cat:'breathing', sub:'1-3 мин',  favSub:'Дыхательная'},
+    {id:'breathing-3', name:'Вздохи',                 cat:'breathing', sub:'5-10мин',  favSub:'Дыхательная'},
+    {id:'breathing-4', name:'Концентрация на дыхании',cat:'breathing', sub:'1-3 мин',  favSub:'Дыхательная'},
+    {id:'physical-1',  name:'Выплеск напряжения',     cat:'physical',  sub:'1-3 мин',  favSub:'Физическая'},
+    {id:'physical-2',  name:'Сброс напряжения',       cat:'physical',  sub:'1-3 мин',  favSub:'Физическая', dark:true},
+    {id:'physical-3',  name:'Кинг-Конг',              cat:'physical',  sub:'5-10мин',  favSub:'Физическая'},
+    {id:'thinking-1',  name:'Советы',                 cat:'thinking',  sub:'1-3 мин',  favSub:'Теоретическая'},
+    {id:'thinking-2',  name:'Интересные факты',       cat:'thinking',  sub:'1-3 мин',  favSub:'Теоретическая'},
+    {id:'thinking-3',  name:'Поддержка',              cat:'thinking',  sub:'5-10мин',  favSub:'Теоретическая'},
+  ];
+
+  // Pre-liked practices (matching favorites Figma frame)
+  const favs = new Set(['breathing-1', 'physical-1', 'thinking-1']);
+
+  // ====== Heart SVG variants ======
+  const HEART_FILLED  = '<svg viewBox="0 0 23 19" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M16.675 0C14.674 0 12.7535 0.84 11.5 2.16C10.2465 0.84 8.326 0 6.325 0C2.78 0 0 2.5 0 5.69C0 9.6 3.91 12.8 9.83 17.64L11.5 19L13.17 17.64C19.09 12.8 23 9.6 23 5.69C23 2.5 20.22 0 16.675 0Z"/></svg>';
+  const HEART_OUTLINE = '<svg viewBox="0 0 23 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.675 1C14.674 1 12.7535 1.84 11.5 3.16C10.2465 1.84 8.326 1 6.325 1C2.78 1 1 3.5 1 6.69C1 10.6 4.91 13.8 10.83 18.64L11.5 19L12.17 18.64C18.09 13.8 22 10.6 22 6.69C22 3.5 19.22 1 16.675 1Z" stroke="white" stroke-width="1.5"/></svg>';
+
+  // ====== Icons per category ======
+  const ICON_AIR      = '<img src="images/icon_breathing.svg" alt="">';
+  const ICON_PHYSICAL = '<img src="images/icon_physical.svg" alt="">';
+  const ICON_THINKING = '<img src="images/icon_thinking.svg" alt="">';
+  function iconFor(cat) {
+    if (cat === 'physical') return ICON_PHYSICAL;
+    if (cat === 'thinking') return ICON_THINKING;
+    return ICON_AIR;
+  }
+
+  // ====== Marker (face) on first breathing item ======
+  const MARKER_HTML = '<div class="cat-item-marker"></div>';
+
+  // ====== Render category list (breathing/physical/thinking) ======
+  function renderCategoryList(catName, containerId) {
+    const items = PRACTICES.filter(p => p.cat === catName);
+    const container = document.getElementById(containerId);
+    container.innerHTML = items.map(p => {
+      const itemClass = p.dark ? `${catName}-item dark` : `${catName}-item`;
+      const iconClass = p.dark ? `${catName}-icon dark` : `${catName}-icon`;
+      const heartHtml = favs.has(p.id) ? HEART_FILLED : HEART_OUTLINE;
+      const markerHtml = (p.marker && favs.has(p.id)) ? MARKER_HTML : '';
+      return `
+        <div class="cat-item ${itemClass}" data-id="${p.id}" onclick="openPractice('${p.id}')">
+          <div class="cat-item-icon ${iconClass}">${iconFor(p.cat)}</div>
+          ${markerHtml}
+          <div class="cat-item-title">${p.name}</div>
+          <div class="cat-item-sub">${p.sub}</div>
+          <div class="cat-item-heart" onclick="toggleFav(event, '${p.id}')">${heartHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ====== Render favorites list ======
+  function renderFavorites() {
+    const container = document.getElementById('favorites-list');
+    const items = PRACTICES.filter(p => favs.has(p.id));
+    if (items.length === 0) {
+      container.innerHTML = '<div class="fav-empty">Пока нет любимых практик.<br>Поставь сердечко в списке.</div>';
+      return;
+    }
+    container.innerHTML = items.map(p => {
+      const itemClass = p.dark ? `${p.cat}-item dark` : `${p.cat}-item`;
+      const iconClass = p.dark ? `${p.cat}-icon dark` : `${p.cat}-icon`;
+      return `
+        <div class="cat-item ${itemClass}" data-id="${p.id}" onclick="openPractice('${p.id}')">
+          <div class="cat-item-icon ${iconClass}">${iconFor(p.cat)}</div>
+          <div class="cat-item-title">${p.name}</div>
+          <div class="cat-item-sub">${p.favSub}</div>
+          <div class="cat-item-heart" onclick="toggleFav(event, '${p.id}')">${HEART_FILLED}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ====== Toggle favorite ======
+  function toggleFav(e, id) {
+    e.stopPropagation();
+    if (favs.has(id)) favs.delete(id); else favs.add(id);
+    // Re-render whichever lists exist (cheap, idempotent)
+    renderCategoryList('breathing', 'breathing-list');
+    renderCategoryList('physical',  'physical-list');
+    renderCategoryList('thinking',  'thinking-list');
+    renderFavorites();
+  }
+
+  // ====== Screen switching ======
+  const NAV_FOR_SCREEN = {
+    home: 'nav-practices',
+    breathing: 'nav-practices',
+    physical: 'nav-practices',
+    thinking: 'nav-practices',
+    favorites: 'nav-practices',
+    history: 'nav-practices',
+    practice: 'nav-practices',
+    'practice-stub': 'nav-practices',
+    tip: 'nav-practices',
+    completion: 'nav-practices',
+    sleep: 'nav-sleep',
+    diary: 'nav-diary',
+    zametka: 'nav-stats',
+    stats: 'nav-stats',
+    settings: 'nav-settings',
+  };
+  function showScreen(name) {
+    if (name !== 'practice' && practiceState.intervalId) {
+      clearInterval(practiceState.intervalId);
+      practiceState.intervalId = null;
+    }
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.getElementById('scrollArea').scrollTop = 0;
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navId = NAV_FOR_SCREEN[name];
+    if (navId) document.getElementById(navId).classList.add('active');
+
+    if (name === 'favorites') renderFavorites();
+    if (name === 'stats') { renderDiary(); renderStatsScreen(); }
+    if (name === 'history') renderHistoryScreen();
+    if (name === 'home') { renderHomeRecentPractices(); renderHomeProgress(); }
+  }
+
+  // ====== Practice flow (Защитный круг) ======
+  const PRACTICE_STEPS = [
+    {
+      duration: 60,
+      titleSuffix: 'Надавливание',
+      img: 'images/practice_step1-c755fd.png',
+      imgWidth: 241, imgLeft: 60,
+      caption: 'Надавите на центр ладони правой руки.',
+      rhythmMain: 'Медленно сделайте вдох при надавливании',
+      rhythmSub: ''
+    },
+    {
+      duration: 45,
+      titleSuffix: 'Круговые движения',
+      img: 'images/practice_step2.png',
+      imgWidth: 248, imgLeft: 57,
+      caption: 'Начните совершать медленные\nкруговые движения большим пальцем.',
+      rhythmMain: 'Медленно выдыхайте напряжение',
+      rhythmSub: 'Выдох длиннее вдоха'
+    },
+    {
+      duration: 30,
+      titleSuffix: 'Фиксация',
+      img: 'images/practice_step3.png',
+      imgWidth: 246, imgLeft: 58,
+      caption: 'Удерживайте нажатие в центре ладони\nв течение 30 секунд. Почувствуйте пульсацию.',
+      rhythmMain: 'Дышите глубоко и равномерно',
+      rhythmSub: 'Сохраняйте мягкий темп дыхания'
+    }
+  ];
+
+  const practiceState = { stepIdx: 0, remainingMs: 0, paused: false, intervalId: null };
+  let lastPracticeId = 'breathing-1';
+
+  // ====== Practice history (persisted) ======
+  let practiceHistory = [];
+  try {
+    const saved = localStorage.getItem('practiceHistory');
+    if (saved) practiceHistory = JSON.parse(saved);
+  } catch (e) {}
+  function persistHistory() {
+    try { localStorage.setItem('practiceHistory', JSON.stringify(practiceHistory)); } catch (e) {}
+  }
+  function logPracticeCompletion(id) {
+    const p = PRACTICES.find(x => x.id === id);
+    if (!p) return;
+    practiceHistory.unshift({ id, name: p.name, cat: p.cat, ts: Date.now() });
+    if (practiceHistory.length > 50) practiceHistory = practiceHistory.slice(0, 50);
+    persistHistory();
+  }
+
+  function openPractice(id) {
+    const p = PRACTICES.find(x => x.id === id);
+    if (!p) return;
+    lastPracticeId = id;
+    if (id === 'breathing-1') { startPractice(); return; }
+    if (id === 'thinking-1')  { openTip(); return; }
+    document.getElementById('practice-stub-name').textContent = p.name;
+    showScreen('practice-stub');
+  }
+
+  function openTip() {
+    showScreen('tip');
+  }
+
+  function finishTip() {
+    logPracticeCompletion(lastPracticeId);
+    document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('comp-card-img').style.display = 'none';
+    showScreen('completion');
+  }
+
+  function repeatPractice() {
+    if (lastPracticeId === 'thinking-1') openTip();
+    else startPractice();
+  }
+
+  function startPractice() {
+    practiceState.stepIdx = 0;
+    loadPracticeStep();
+    showScreen('practice');
+  }
+
+  function loadPracticeStep() {
+    const s = PRACTICE_STEPS[practiceState.stepIdx];
+    practiceState.remainingMs = s.duration * 1000;
+    practiceState.paused = false;
+
+    document.getElementById('practice-step-label').textContent = `Шаг ${practiceState.stepIdx + 1} из 3 (Правая рука)`;
+    document.getElementById('practice-title').textContent = `Защитный круг:\n${s.titleSuffix}`;
+    const img = document.getElementById('practice-pic-img');
+    img.style.backgroundImage = `url('${s.img}')`;
+    img.style.width = s.imgWidth + 'px';
+    img.style.left = s.imgLeft + 'px';
+    document.getElementById('practice-caption').textContent = s.caption;
+    document.getElementById('practice-rhythm-main').textContent = s.rhythmMain;
+    document.getElementById('practice-rhythm-sub').textContent = s.rhythmSub;
+
+    document.getElementById('practice-ctrl-prev').classList.toggle('disabled', practiceState.stepIdx === 0);
+
+    setPlayPauseIcon(false);
+    updatePracticeUI();
+    startPracticeTimer();
+  }
+
+  function startPracticeTimer() {
+    if (practiceState.intervalId) clearInterval(practiceState.intervalId);
+    practiceState.intervalId = setInterval(practiceTick, 100);
+  }
+
+  function practiceTick() {
+    if (practiceState.paused) return;
+    practiceState.remainingMs -= 100;
+    if (practiceState.remainingMs <= 0) {
+      practiceState.remainingMs = 0;
+      updatePracticeUI();
+      practiceNext();
+      return;
+    }
+    updatePracticeUI();
+  }
+
+  const STEP_PROGRESS_PCT = [33, 66, 99];
+  function updatePracticeUI() {
+    const stepPct = STEP_PROGRESS_PCT[practiceState.stepIdx];
+    document.getElementById('practice-pbar-fill').style.width = stepPct + '%';
+    document.getElementById('practice-percent').textContent = stepPct + '%';
+    const totalSec = Math.ceil(practiceState.remainingMs / 1000);
+    const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const ss = String(totalSec % 60).padStart(2, '0');
+    document.getElementById('practice-rhythm-time').textContent = `${mm}:${ss}`;
+  }
+
+  function practiceTogglePause() {
+    practiceState.paused = !practiceState.paused;
+    setPlayPauseIcon(practiceState.paused);
+  }
+
+  function setPlayPauseIcon(showPlay) {
+    document.getElementById('practice-pause-icon').style.display = showPlay ? 'none' : 'flex';
+    document.getElementById('practice-play-icon').style.display  = showPlay ? 'block' : 'none';
+  }
+
+  function practiceNext() {
+    if (practiceState.stepIdx < PRACTICE_STEPS.length - 1) {
+      practiceState.stepIdx++;
+      loadPracticeStep();
+    } else {
+      finishPractice();
+    }
+  }
+
+  function practicePrev() {
+    if (practiceState.stepIdx > 0) {
+      practiceState.stepIdx--;
+      loadPracticeStep();
+    }
+  }
+
+  function finishPractice() {
+    if (practiceState.intervalId) {
+      clearInterval(practiceState.intervalId);
+      practiceState.intervalId = null;
+    }
+    logPracticeCompletion(lastPracticeId);
+    document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('comp-card-img').style.display = '';
+    showScreen('completion');
+  }
+
+  function exitPractice() {
+    showScreen('home');
+  }
+
+  function selectMood(idx) {
+    document.querySelectorAll('.mood-card').forEach(c => c.classList.toggle('active', Number(c.dataset.mood) === idx));
+  }
+
+  // ====== DIARY (Дневник) ======
+  const TODAY_ISO = '2026-04-25'; // app context: Чт, 25 янв/апр 2026 — see header
+  const MONTH_NOMINATIVE = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  const MONTH_GENITIVE   = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  // moodsByDate[iso] = [{mood, note, time}, ...]  — multiple entries per day allowed
+  const moodsByDate = {};
+  try {
+    const saved = localStorage.getItem('moodsByDate');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Migrate legacy single-object entries into arrays
+      for (const k in parsed) {
+        moodsByDate[k] = Array.isArray(parsed[k]) ? parsed[k] : [parsed[k]];
+      }
+    }
+  } catch (e) {}
+  function persistMoods() {
+    try { localStorage.setItem('moodsByDate', JSON.stringify(moodsByDate)); } catch (e) {}
+  }
+  function moodsForDate(iso) { return moodsByDate[iso] || []; }
+  function dominantMood(entries) {
+    if (!entries || entries.length === 0) return null;
+    const c = {pos:0, neu:0, neg:0};
+    entries.forEach(e => { c[e.mood] = (c[e.mood] || 0) + 1; });
+    let best = 'pos', max = -1;
+    for (const k of ['pos','neu','neg']) if (c[k] > max) { max = c[k]; best = k; }
+    return best;
+  }
+
+  const diaryCursor = { year: 2026, month: 3 }; // April (0-indexed)
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function isoDate(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
+
+  function renderDiary() {
+    renderDiaryCalendar();
+    renderDiaryStat();
+  }
+
+  // Build SVG with proportional pos/neu/neg arc segments around a circle.
+  function buildRingSvg(pos, neu, neg, size, sw) {
+    const total = pos + neu + neg;
+    if (!total) return '';
+    const r = (size - sw) / 2;
+    const cx = size / 2, cy = size / 2;
+    const C = 2 * Math.PI * r;
+    const segs = [
+      { len: pos / total * C, color: '#F269B7' },
+      { len: neu / total * C, color: '#F2C94C' },
+      { len: neg / total * C, color: '#B59AF7' }
+    ];
+    let offset = 0;
+    let parts = '';
+    for (const s of segs) {
+      if (s.len <= 0) continue;
+      parts += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${s.len.toFixed(2)} ${(C - s.len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      offset += s.len;
+    }
+    return `<svg class="mood-ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${parts}</svg>`;
+  }
+
+  function renderDiaryCalendar() {
+    const grid = document.getElementById('diary-cal-grid');
+    document.getElementById('diary-cal-month').textContent =
+      `${MONTH_NOMINATIVE[diaryCursor.month]} ${diaryCursor.year}`;
+
+    let html = '';
+    for (const d of ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']) {
+      html += `<div class="diary-cal-day-h">${d}</div>`;
+    }
+    const first = new Date(diaryCursor.year, diaryCursor.month, 1);
+    const lastDay = new Date(diaryCursor.year, diaryCursor.month + 1, 0).getDate();
+    const prevLastDay = new Date(diaryCursor.year, diaryCursor.month, 0).getDate();
+    let firstDow = first.getDay();
+    firstDow = firstDow === 0 ? 6 : firstDow - 1;
+
+    for (let i = firstDow; i > 0; i--) {
+      html += `<div class="diary-cal-cell dim">${prevLastDay - i + 1}</div>`;
+    }
+    for (let d = 1; d <= lastDay; d++) {
+      const iso = isoDate(diaryCursor.year, diaryCursor.month, d);
+      let cls = 'diary-cal-cell';
+      if (iso === TODAY_ISO) cls += ' today';
+      if (iso === statsSelectedIso) cls += ' selected';
+      const entries = moodsForDate(iso);
+      let cp = 0, cn = 0, cg = 0;
+      for (const e of entries) {
+        if (e.mood === 'pos') cp++;
+        else if (e.mood === 'neu') cn++;
+        else cg++;
+      }
+      const ring = buildRingSvg(cp, cn, cg, 32, 2.5);
+      html += `<div class="${cls}" data-iso="${iso}" onclick="diaryOnDateClick('${iso}')">${ring}<span class="cell-num">${d}</span></div>`;
+    }
+    const cells = firstDow + lastDay;
+    const total = Math.ceil(cells / 7) * 7;
+    for (let d = 1; d <= total - cells; d++) {
+      html += `<div class="diary-cal-cell dim">${d}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function renderDiaryStat() {
+    // All-time counts — used for the ring around the main emoji.
+    let posAll = 0, neuAll = 0, negAll = 0;
+    for (const k in moodsByDate) {
+      for (const e of moodsByDate[k]) {
+        if (e.mood === 'pos') posAll++;
+        else if (e.mood === 'neu') neuAll++;
+        else negAll++;
+      }
+    }
+    const totalAll = posAll + neuAll + negAll;
+
+    // Current-month counts — used for the displayed %, legend, etc.
+    const ymPrefix = `${diaryCursor.year}-${pad2(diaryCursor.month + 1)}-`;
+    let pos = 0, neu = 0, neg = 0, total = 0;
+    for (const k in moodsByDate) {
+      if (!k.startsWith(ymPrefix)) continue;
+      for (const e of moodsByDate[k]) {
+        total++;
+        if (e.mood === 'pos') pos++;
+        else if (e.mood === 'neu') neu++;
+        else neg++;
+      }
+    }
+
+    // Update the all-time ring around the emoji.
+    const wrap = document.getElementById('diary-stat-icon-wrap');
+    const oldRing = wrap.querySelector('svg.mood-ring');
+    if (oldRing) oldRing.remove();
+    if (totalAll > 0) {
+      wrap.insertAdjacentHTML('afterbegin', buildRingSvg(posAll, neuAll, negAll, 60, 4));
+    }
+
+    const c = document.getElementById('diary-stat-content');
+    const iconImg = document.getElementById('diary-stat-icon-img');
+    if (total === 0) {
+      iconImg.src = 'images/face_stats.svg';
+      c.innerHTML = `<div class="diary-stat-empty">оценок пока нет</div>`;
+    } else {
+      const posPct = Math.round(pos * 100 / total);
+      const neuPct = Math.round(neu * 100 / total);
+      const negPct = 100 - posPct - neuPct;
+      iconImg.src = 'images/face_happy.svg';
+      c.innerHTML = `
+        <div class="diary-stat-pct-big">
+          <span class="num">${posPct}%</span>
+          <span class="lbl">положительных</span>
+        </div>
+        <div class="diary-stat-legend">
+          <span class="ld pos">${posPct}%</span>
+          <span class="ld neu">${neuPct}%</span>
+          <span class="ld neg">${negPct}%</span>
+        </div>`;
+    }
+  }
+
+  function ruPlural(n, one, few, many) {
+    const n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return one;
+    if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return few;
+    return many;
+  }
+
+  function diaryPrevMonth() {
+    diaryCursor.month--;
+    if (diaryCursor.month < 0) { diaryCursor.month = 11; diaryCursor.year--; }
+    renderDiary();
+  }
+  function diaryNextMonth() {
+    diaryCursor.month++;
+    if (diaryCursor.month > 11) { diaryCursor.month = 0; diaryCursor.year++; }
+    renderDiary();
+  }
+
+  function diaryOnDateClick(iso) {
+    statsSelectedIso = iso;
+    renderDiaryCalendar();
+    renderStatsScreen();
+  }
+
+  function openNoteDetail(iso, mood, time, fullText) {
+    const [y, mo, d] = iso.split('-').map(Number);
+    document.getElementById('note-modal-title').textContent =
+      `${d} ${MONTH_GENITIVE[mo - 1]} ${y}`;
+    const meta = document.getElementById('note-modal-meta');
+    meta.classList.remove('pos','neu','neg');
+    meta.classList.add(mood);
+    document.getElementById('note-modal-meta-text').textContent = time;
+    const body = (fullText && fullText.trim()) ? fullText : 'Без описания';
+    document.getElementById('note-modal-body').textContent = body;
+    document.getElementById('note-modal-backdrop').classList.add('open');
+  }
+
+  function closeNoteDetail(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('note-modal-backdrop').classList.remove('open');
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  function formatRelativeTime(ts) {
+    const now = Date.now();
+    const diff = Math.floor((now - ts) / 1000);
+    if (diff < 60) return 'только что';
+    if (diff < 3600) return `${Math.floor(diff/60)} мин назад`;
+    if (diff < 86400) return `${Math.floor(diff/3600)} ч назад`;
+    const d = new Date(ts);
+    const days = Math.floor(diff / 86400);
+    if (days < 7) return `${days} дн назад`;
+    return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+  }
+
+  const CAT_BG_COLOR = { breathing: '#B95087', physical: '#C79A5E', thinking: '#9A83D2' };
+  const REPLAY_SVG = '<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 2v8l7-4-7-4z" fill="white"/></svg>';
+
+  function renderHistoryScreen() {
+    const card = document.getElementById('history-card');
+    if (practiceHistory.length === 0) {
+      card.innerHTML = `<div class="history-empty">Пока нет пройденных практик.<br>Заверши любую практику и она появится здесь.</div>`;
+      return;
+    }
+    card.innerHTML = practiceHistory.map(entry => {
+      const bg = CAT_BG_COLOR[entry.cat] || '#5A4DA0';
+      let iconSrc = 'images/icon_breathing.svg';
+      if (entry.cat === 'physical') iconSrc = 'images/icon_physical.svg';
+      else if (entry.cat === 'thinking') iconSrc = 'images/icon_thinking.svg';
+      return `
+        <div class="history-row">
+          <div class="icon-bg" style="background:${bg}"><img src="${iconSrc}" alt=""></div>
+          <div class="info">
+            <div class="name">${escapeHtml(entry.name)}</div>
+            <div class="when">${formatRelativeTime(entry.ts)}</div>
+          </div>
+          <div class="replay" onclick="openPractice('${entry.id}')">${REPLAY_SVG}</div>
+        </div>`;
+    }).join('');
+  }
+
+  const GOAL_TARGET = 10;
+  function renderHomeProgress() {
+    const doneEl   = document.getElementById('goal-done');
+    const targetEl = document.getElementById('goal-target');
+    const arc      = document.getElementById('goal-progress-arc');
+    if (!doneEl || !targetEl) return;
+    const done = Math.min(practiceHistory.length, GOAL_TARGET);
+    doneEl.textContent   = String(done);
+    targetEl.textContent = String(GOAL_TARGET);
+    if (arc) {
+      const C = 2 * Math.PI * 56.5;
+      const len = (done / GOAL_TARGET) * C;
+      arc.style.transition = 'stroke-dasharray 400ms ease';
+      arc.setAttribute('stroke-dasharray', `${len.toFixed(2)} ${C.toFixed(2)}`);
+    }
+  }
+
+  function renderHomeRecentPractices() {
+    const container = document.getElementById('card-last-rows');
+    if (!container) return;
+    const recent = practiceHistory.slice(0, 4);
+    if (recent.length === 0) {
+      container.innerHTML = `<div class="card-last-empty">Пока ничего не пройдено</div>`;
+      return;
+    }
+    const COLORS = ['#F36AB2', '#F6C17A', '#B59AF7', '#F36AB2'];
+    const TOPS = [49.03, 81.39, 113.28, 143.27];
+    const OPACITIES = [1, 1, 1, 0.6];
+    container.innerHTML = recent.map((entry, i) => {
+      const op = OPACITIES[i];
+      return `<div class="practice-row" style="top:${TOPS[i]}px; background:${COLORS[i]}; opacity:${op}" onclick="openPractice('${entry.id}')">${escapeHtml(entry.name)}</div>`;
+    }).join('');
+  }
+
+  let statsSelectedIso = null;
+
+  function renderStatsScreen() {
+    const dates = Object.keys(moodsByDate).sort().reverse();
+    let total = 0;
+    for (const iso of dates) total += moodsByDate[iso].length;
+
+    const panel = document.getElementById('stats-notes-panel');
+
+    // If user hasn't picked a date and nothing exists anywhere, show global empty state.
+    if (!statsSelectedIso && total === 0) {
+      panel.innerHTML = `
+        <div class="stats-empty">
+          <img src="images/diary_char.svg" alt="">
+          <div class="t">Пока нет заметок</div>
+          <div class="s">Добавь настроение, чтобы<br>отслеживать динамику и лучше понимать себя</div>
+        </div>`;
+      return;
+    }
+
+    // Default selection: today (if has notes), else most recent date with notes.
+    if (!statsSelectedIso) {
+      statsSelectedIso = moodsByDate[TODAY_ISO] ? TODAY_ISO : dates[0];
+    }
+
+    const iso = statsSelectedIso;
+    const entries = moodsByDate[iso] || [];
+    const [yy, mo, dd] = iso.split('-').map(Number);
+    const dateLabel = (iso === TODAY_ISO)
+      ? `Сегодня, ${dd} ${MONTH_GENITIVE[mo - 1]}`
+      : `${dd} ${MONTH_GENITIVE[mo - 1]} ${yy}`;
+
+    let inner = '';
+    if (entries.length === 0) {
+      inner = `<div class="stats-no-entries">За этот день заметок нет</div>`;
+    } else {
+      for (let i = 0; i < entries.length; i++) {
+        const e = entries[i];
+        const text = e.note && e.note.trim() ? e.note : 'Без описания';
+        inner += `
+          <div class="stats-note-row ${e.mood}" data-iso="${iso}" data-idx="${i}">
+            <span class="note-text">${escapeHtml(text)}</span>
+            <span class="meta">${escapeHtml(e.time)}<span class="face"></span></span>
+          </div>`;
+      }
+    }
+    panel.innerHTML = `
+      <div class="stats-notes-title">Заметки за ${dateLabel}</div>
+      <div class="stats-notes-scroll">${inner}</div>`;
+    panel.querySelectorAll('.stats-note-row').forEach(row => {
+      row.onclick = () => {
+        const iso = row.dataset.iso;
+        const idx = Number(row.dataset.idx);
+        const e = moodsByDate[iso][idx];
+        openNoteDetail(iso, e.mood, e.time, e.note || '');
+      };
+    });
+  }
+
+  function diaryOpenAddToday() { diaryOpenAdd(TODAY_ISO); }
+  function diaryOpenAddSelected() { diaryOpenAdd(statsSelectedIso || TODAY_ISO); }
+
+  function diaryOpenAdd(iso) {
+    iso = iso || TODAY_ISO;
+    zamState.date = iso;
+    zamState.mood = '';
+    const [y, mo, d] = iso.split('-').map(Number);
+    document.getElementById('zam-date').textContent =
+      `${d} ${MONTH_GENITIVE[mo - 1]} ${y}`;
+    document.querySelectorAll('.zam-mood').forEach(el => el.classList.remove('active'));
+    document.getElementById('zam-text').value = '';
+    document.getElementById('zam-counter').textContent = '0';
+    document.getElementById('zam-time').textContent = '14:30';
+    showScreen('zametka');
+  }
+
+  // ====== ZAMETKA (Add Mood) ======
+  const zamState = { date: TODAY_ISO, mood: '' };
+
+  function zamSelectMood(m) {
+    zamState.mood = m;
+    document.querySelectorAll('.zam-mood').forEach(el => {
+      el.classList.toggle('active', el.dataset.mood === m);
+    });
+  }
+
+  function zamUpdateCounter() {
+    const ta = document.getElementById('zam-text');
+    document.getElementById('zam-counter').textContent = ta.value.length;
+  }
+
+  function zamBumpTime() {
+    const t = document.getElementById('zam-time');
+    const [hh, mm] = t.textContent.split(':').map(Number);
+    let total = hh * 60 + mm + 30;
+    if (total >= 24 * 60) total = 0;
+    t.textContent = `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`;
+  }
+
+  function zamSave() {
+    if (!zamState.mood) {
+      alert('Выбери настроение');
+      return;
+    }
+    if (!moodsByDate[zamState.date]) moodsByDate[zamState.date] = [];
+    moodsByDate[zamState.date].push({
+      mood: zamState.mood,
+      note: document.getElementById('zam-text').value,
+      time: document.getElementById('zam-time').textContent
+    });
+    persistMoods();
+    showScreen('stats');
+  }
+
+  function zamClose() {
+    showScreen('stats');
+  }
+
+  // ====== Init ======
+  renderCategoryList('breathing', 'breathing-list');
+  renderCategoryList('physical',  'physical-list');
+  renderCategoryList('thinking',  'thinking-list');
+  renderFavorites();
+  document.getElementById('nav-practices').classList.add('active');
+  renderDiary();
+  renderHomeRecentPractices();
+  renderHomeProgress();
+</script>
+</body>
+</html>
