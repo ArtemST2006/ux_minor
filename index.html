@@ -1631,8 +1631,8 @@
   (function () {
     const PHONE_W = 412;
     const PHONE_H = 917;
-    const MAX_SCALE = 0.7;
-    const MARGIN = 16; // breathing room inside visible area
+    const MAX_SCALE = 1.0;
+    const MARGIN = 4; // tiny safety buffer inside the visible area
     function fit() {
       const el = document.querySelector('.phone-frame');
       if (!el) return;
