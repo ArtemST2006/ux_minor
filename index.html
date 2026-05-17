@@ -974,6 +974,31 @@
   #nav-diary     { left: 174px; }
   #nav-stats     { left: 256px; }
   #nav-settings  { left: 339px; }
+
+  /* On phones/small screens: fit the whole phone mockup to the viewport,
+     keep absolute pixel layout intact by scaling the frame as a single unit. */
+  @media (max-width: 768px) {
+    html { height: 100%; }
+    body {
+      padding: 0;
+      margin: 0;
+      background: #221C6A;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 100vh;
+      min-height: 100dvh;
+      height: 100vh;
+      height: 100dvh;
+    }
+    .phone-frame {
+      border-radius: 0;
+      box-shadow: none;
+      flex-shrink: 0;
+      transform-origin: center center;
+      transform: scale(min(calc(100vw / 412), calc(100dvh / 917)));
+    }
+  }
 </style>
 </head>
 <body>
