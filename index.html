@@ -334,6 +334,173 @@
   /* ===== STATS screen ===== */
   .screen-stats { height: 833px; }
 
+  /* "Статистика" tab — full screen */
+  .screen-statspage { height: auto; min-height: 833px; padding-bottom: 24px; }
+  .stats-h {
+    position: absolute; left: 25px; top: 134px; color: #F6F3FF;
+    font-weight: 700; font-size: 18px; line-height: 1;
+  }
+  .stats-tabs {
+    position: absolute; left: 25px; top: 168px; right: 25px;
+    display: flex; gap: 32px;
+    color: rgba(255,255,255,0.58); font-weight: 700; font-size: 15px;
+  }
+  .stats-tab { cursor: pointer; user-select: none; transition: color 120ms ease; }
+  .stats-tab.active { color: #FFFFFF; }
+  .stats-tab.disabled { cursor: not-allowed; opacity: 0.7; }
+
+  .stats-chart-card {
+    position: absolute; left: 25px; top: 202px; width: 362px; height: 181px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #FFFAFE 0%, #FFF1F8 100%);
+    border: 1px solid #FFD7EA;
+    overflow: hidden;
+  }
+  .stats-chart-axis { position: absolute; left: 14px; top: 0; bottom: 0; width: 22px; }
+  .stats-chart-axis .ax {
+    position: absolute; left: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stats-chart-axis .ax.pos { top: 18px; }
+  .stats-chart-axis .ax.neu { top: 55px; }
+  .stats-chart-axis .ax.neg { top: 92px; }
+  .stats-chart-axis .ax svg { width: 22px; height: 22px; display: block; }
+  .stats-chart-bars {
+    position: absolute; left: 50px; right: 14px; top: 18px; bottom: 50px;
+    display: flex; align-items: flex-end; justify-content: space-around;
+  }
+  .stats-chart-bars .bar-wrap {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    height: 100%; min-width: 0;
+  }
+  .stats-chart-bars .bar {
+    width: 22px; border-radius: 5px 5px 0 0;
+    transition: height 280ms ease;
+  }
+  .stats-chart-bars .bar.empty {
+    height: 4px; background: rgba(243,106,178,0.25);
+  }
+  .stats-chart-bars .bar.pos { background: #F36AB2; }
+  .stats-chart-bars .bar.neu { background: #F7D0C2; }
+  .stats-chart-bars .bar.neg { background: #B59AF7; }
+  .stats-chart-labels {
+    position: absolute; left: 50px; right: 14px; bottom: 8px;
+    display: flex; justify-content: space-around;
+  }
+  .stats-chart-labels .lbl {
+    flex: 1; text-align: center;
+    color: #3B0FA3; font-weight: 700; font-size: 9px;
+  }
+  .stats-chart-labels .lbl.today { color: #F36AB2; }
+
+  .stats-cal-h {
+    position: absolute; left: 25px; top: 404px; color: #F6F3FF;
+    font-weight: 700; font-size: 18px; line-height: 1;
+  }
+
+  .stats-cal-card {
+    position: absolute; left: 25px; top: 442px; width: 362px; height: 245px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #FFF1FA 0%, #FFE3F1 100%);
+    border: 1px solid #FFD3E8;
+    padding: 14px 16px 14px;
+    box-sizing: border-box;
+  }
+  .stats-cal-month-bar {
+    display: flex; align-items: center; justify-content: center; gap: 26px;
+    margin-bottom: 8px;
+  }
+  .stats-cal-arrow {
+    color: #F36AB2; font-weight: 700; font-size: 18px; line-height: 1;
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+  }
+  .stats-cal-arrow:active { transform: scale(0.9); }
+  .stats-cal-month {
+    color: #F36AB2; font-weight: 700; font-size: 16px;
+    text-transform: lowercase; letter-spacing: 0.01em;
+  }
+  .stats-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+  .stats-cal-day-h {
+    color: #FB9BCD; font-weight: 700; font-size: 11px;
+    text-align: center; padding: 4px 0 6px;
+  }
+  .stats-cal-cell {
+    position: relative; height: 28px; line-height: 28px;
+    text-align: center;
+    color: #F36AB2; font-weight: 700; font-size: 13px;
+    cursor: pointer; user-select: none;
+    border-radius: 50%;
+    margin: 0 auto;
+    width: 28px;
+  }
+  .stats-cal-cell.dim { color: rgba(243,106,178,0.35); cursor: default; }
+  .stats-cal-cell.today { background: #F36AB2; color: #fff; }
+  /* Selected day: white bg + thick pink ring + pink number */
+  .stats-cal-cell.selected:not(.today) {
+    background: #FFFFFF;
+    box-shadow: 0 0 0 2px #F36AB2;
+    color: #F36AB2;
+  }
+  /* Ring around dates that have at least one practice. Color reflects dominant mood. */
+  .stats-cal-cell .mood-dot {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+  .stats-cal-cell .mood-dot.pos { border-color: #F36AB2; }
+  .stats-cal-cell .mood-dot.neu { border-color: #F6C17A; }
+  .stats-cal-cell .mood-dot.neg { border-color: #B59AF7; }
+  .stats-cal-cell .mood-dot.none { border-color: #FFB6DD; }
+  .stats-cal-cell .cell-num { position: relative; z-index: 1; }
+
+  /* Bottom day-detail card */
+  .stats-day-card {
+    position: absolute; left: 22px; top: 712px; width: 368px; min-height: 117px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #FFFAFE 0%, #FFF1F8 100%);
+    border: 1px solid #FFD7EA;
+    padding: 18px 18px 16px;
+    box-sizing: border-box;
+  }
+  .stats-day-handle {
+    position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
+    width: 53px; height: 4px; border-radius: 4px; background: #D3C5DA;
+  }
+  .statsp-day-h {
+    color: #574B7A; font-weight: 700; font-size: 14px;
+    line-height: 17px;
+    padding: 4px 32px 0 0;
+  }
+  .statsp-day-arrows {
+    position: absolute; right: 14px; top: 16px;
+    display: flex; gap: 6px;
+  }
+  .statsp-day-arrows .arr {
+    width: 22px; height: 22px;
+    color: #574B7A; font-weight: 700; font-size: 14px; line-height: 22px;
+    text-align: center; cursor: pointer; user-select: none;
+  }
+  .statsp-day-arrows .arr:active { transform: scale(0.9); }
+  .statsp-day-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .statsp-day-row {
+    height: 28px; border-radius: 16px;
+    display: flex; align-items: center; padding: 0 14px;
+    color: #FEF9EB; font-weight: 600; font-size: 12px;
+  }
+  .statsp-day-row.cat-breathing { background: #F36AB2; }
+  .statsp-day-row.cat-physical  { background: #F6C17A; }
+  .statsp-day-row.cat-thinking  { background: #B59AF7; }
+
+  .statsp-day-empty {
+    margin-top: 14px; text-align: center;
+    color: #8C86B9; font-weight: 600; font-size: 12px; line-height: 1.45;
+    padding: 4px 8px 6px;
+  }
+
   .stats-notes-panel {
     position: absolute; left: 25px; top: 624px; width: 362px; height: 209px;
     border-radius: 26px; background: #FFF8FC;
@@ -459,11 +626,8 @@
     transition: border-color 120ms ease, transform 120ms ease;
   }
   .zam-mood:active .zam-mood-circle { transform: scale(0.96); }
-  .zam-mood.pos .zam-mood-circle { background: #F7BCD8; }
-  .zam-mood.neu .zam-mood-circle { background: #F4DFB6; }
-  .zam-mood.neg .zam-mood-circle { background: transparent; }
-  .zam-mood-circle-svg { padding: 0; }
-  .zam-mood-circle-svg svg { width: 70px; height: 70px; display: block; }
+  .zam-mood .zam-mood-circle { background: transparent; padding: 0; }
+  .zam-mood .zam-mood-circle svg { width: 70px; height: 70px; display: block; }
   .zam-mood.active.pos .zam-mood-circle { border-color: #F269B7; }
   .zam-mood.active.neu .zam-mood-circle { border-color: #F2C94C; }
   .zam-mood.active.neg .zam-mood-circle { border-color: #B59AF7; }
@@ -571,9 +735,9 @@
   .breathing-item   { background: #F36AB2; }
   .breathing-icon   { background: #B95087; }
   .physical-item    { background: #F6C17A; }
-  .physical-item.dark { background: #8A3C5A; }
+  .physical-item.dark { background: #F6C17A; }
   .physical-icon    { background: #C79A5E; }
-  .physical-icon.dark { background: #6B2D44; }
+  .physical-icon.dark { background: #C79A5E; }
   .thinking-item    { background: #B59AF7; }
   .thinking-icon    { background: #9A83D2; }
 
@@ -986,8 +1150,8 @@
         <div class="stub-name" id="practice-stub-name"></div>
       </section>
 
-      <!-- ========== DIARY (stub) ========== -->
-      <section class="screen screen-stub" id="screen-diary">
+      <!-- ========== DIARY (Твой дневник эмоций) ========== -->
+      <section class="screen screen-stats" id="screen-diary">
         <div class="header-bg"></div>
         <div class="status-time">9:41</div>
         <img class="status-signal" src="images/signal.svg" alt="">
@@ -996,8 +1160,34 @@
         <div class="avatar"></div>
         <div class="greet">Привет, Анна!</div>
         <div class="date">Чт, 25 янв 2026</div>
-        <div class="stub-title">Дневник</div>
-        <div class="stub-text">Раздел в разработке</div>
+
+        <div class="diary-stat-h">Твой дневник эмоций</div>
+        <div class="diary-stat-card">
+          <div class="diary-stat-icon-wrap" id="diary-stat-icon-wrap">
+            <div class="diary-stat-icon"><img id="diary-stat-icon-img" src="images/face_stats.svg" alt=""></div>
+          </div>
+          <div class="diary-stat-title">Эмоции в этом месяце</div>
+          <div id="diary-stat-content"></div>
+        </div>
+
+        <div class="diary-cal-h">Календарь эмоций</div>
+        <div class="diary-legend">
+          <span class="lg pos">Позитивные</span>
+          <span class="lg neu">Нейтральные</span>
+          <span class="lg neg">Негативные</span>
+        </div>
+
+        <div class="diary-cal-card">
+          <div class="diary-cal-month-bar">
+            <div class="diary-cal-arrow" onclick="diaryPrevMonth()">‹</div>
+            <div class="diary-cal-month" id="diary-cal-month">апрель 2026</div>
+            <div class="diary-cal-arrow" onclick="diaryNextMonth()">›</div>
+          </div>
+          <div class="diary-cal-grid" id="diary-cal-grid"></div>
+        </div>
+
+        <div class="stats-notes-panel" id="stats-notes-panel"></div>
+        <div class="stats-add-btn" onclick="diaryOpenAddSelected()">+ Добавить настроение</div>
       </section>
 
       <!-- ========== ZAMETKA (Add Mood Note) ========== -->
@@ -1022,17 +1212,34 @@
 
           <div class="zam-mood-row">
             <div class="zam-mood pos" data-mood="pos" onclick="zamSelectMood('pos')">
-              <div class="zam-mood-circle">🙂</div>
+              <div class="zam-mood-circle">
+                <svg viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="35" cy="35" r="35" fill="#F36AB2"/>
+                  <circle cx="25" cy="29" r="4" fill="#2B0D64"/>
+                  <circle cx="45" cy="29" r="4" fill="#2B0D64"/>
+                  <path d="M22 43 Q35 56 48 43" stroke="#2B0D64" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                </svg>
+              </div>
               <div class="zam-mood-label">Позитивное</div>
             </div>
             <div class="zam-mood neu" data-mood="neu" onclick="zamSelectMood('neu')">
-              <div class="zam-mood-circle">😐</div>
+              <div class="zam-mood-circle">
+                <svg viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="35" cy="35" r="35" fill="#F7D0C2"/>
+                  <ellipse cx="25" cy="29" rx="3" ry="4.5" fill="#3A2148"/>
+                  <ellipse cx="45" cy="29" rx="3" ry="4.5" fill="#3A2148"/>
+                  <line x1="24" y1="48" x2="46" y2="48" stroke="#3A2148" stroke-width="3.5" stroke-linecap="round"/>
+                </svg>
+              </div>
               <div class="zam-mood-label">Нейтральное</div>
             </div>
             <div class="zam-mood neg" data-mood="neg" onclick="zamSelectMood('neg')">
-              <div class="zam-mood-circle zam-mood-circle-svg">
-                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M30 60C46.5685 60 60 46.5685 60 30C60 13.4315 46.5685 0 30 0C13.4315 0 0 13.4315 0 30C0 46.5685 13.4315 60 30 60Z" fill="#B59AF7"/>
+              <div class="zam-mood-circle">
+                <svg viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="35" cy="35" r="35" fill="#B59AF7"/>
+                  <ellipse cx="25" cy="29" rx="3" ry="4.5" fill="#3C2559"/>
+                  <ellipse cx="45" cy="29" rx="3" ry="4.5" fill="#3C2559"/>
+                  <path d="M22 52 Q35 39 48 52" stroke="#3C2559" stroke-width="3.5" stroke-linecap="round" fill="none"/>
                 </svg>
               </div>
               <div class="zam-mood-label">Негативное</div>
@@ -1075,7 +1282,7 @@
         <div class="history-card" id="history-card"></div>
       </section>
 
-      <section class="screen screen-stats" id="screen-stats">
+      <section class="screen screen-statspage" id="screen-stats">
         <div class="header-bg"></div>
         <div class="status-time">9:41</div>
         <img class="status-signal" src="images/signal.svg" alt="">
@@ -1085,33 +1292,63 @@
         <div class="greet">Привет, Анна!</div>
         <div class="date">Чт, 25 янв 2026</div>
 
-        <div class="diary-stat-h">Твоя статистика</div>
-        <div class="diary-stat-card">
-          <div class="diary-stat-icon-wrap" id="diary-stat-icon-wrap">
-            <div class="diary-stat-icon"><img id="diary-stat-icon-img" src="images/face_stats.svg" alt=""></div>
+        <div class="stats-h">Статистика уровня настроения</div>
+        <div class="stats-tabs">
+          <span class="stats-tab active" data-range="week" onclick="statsSetTab('week')">Неделя</span>
+          <span class="stats-tab disabled" data-range="month" onclick="statsSetTab('month')">Месяц</span>
+          <span class="stats-tab disabled" data-range="year" onclick="statsSetTab('year')">Год</span>
+        </div>
+
+        <div class="stats-chart-card">
+          <div class="stats-chart-axis">
+            <div class="ax pos">
+              <svg viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="10" fill="#F36AB2"/>
+                <circle cx="8" cy="9" r="1.4" fill="#2B0D64"/>
+                <circle cx="14" cy="9" r="1.4" fill="#2B0D64"/>
+                <path d="M7 14 Q11 18 15 14" stroke="#2B0D64" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <div class="ax neu">
+              <svg viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="10" fill="#F7D0C2"/>
+                <ellipse cx="8" cy="9" rx="1.1" ry="1.5" fill="#3A2148"/>
+                <ellipse cx="14" cy="9" rx="1.1" ry="1.5" fill="#3A2148"/>
+                <line x1="7.5" y1="15" x2="14.5" y2="15" stroke="#3A2148" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="ax neg">
+              <svg viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="10" fill="#B59AF7"/>
+                <ellipse cx="8" cy="9" rx="1.1" ry="1.5" fill="#3C2559"/>
+                <ellipse cx="14" cy="9" rx="1.1" ry="1.5" fill="#3C2559"/>
+                <path d="M7 16 Q11 12 15 16" stroke="#3C2559" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
           </div>
-          <div class="diary-stat-title">Эмоции в этом месяце</div>
-          <div id="diary-stat-content"></div>
+          <div class="stats-chart-bars" id="stats-chart-bars"></div>
+          <div class="stats-chart-labels" id="stats-chart-labels"></div>
         </div>
 
-        <div class="diary-cal-h">Календарь эмоций</div>
-        <div class="diary-legend">
-          <span class="lg pos">Позитивные</span>
-          <span class="lg neu">Нейтральные</span>
-          <span class="lg neg">Негативные</span>
-        </div>
-
-        <div class="diary-cal-card">
-          <div class="diary-cal-month-bar">
-            <div class="diary-cal-arrow" onclick="diaryPrevMonth()">‹</div>
-            <div class="diary-cal-month" id="diary-cal-month">апрель 2026</div>
-            <div class="diary-cal-arrow" onclick="diaryNextMonth()">›</div>
+        <div class="stats-cal-h">Календарь практик</div>
+        <div class="stats-cal-card">
+          <div class="stats-cal-month-bar">
+            <div class="stats-cal-arrow" onclick="statsPrevMonth()">‹</div>
+            <div class="stats-cal-month" id="stats-cal-month">апрель 2026</div>
+            <div class="stats-cal-arrow" onclick="statsNextMonth()">›</div>
           </div>
-          <div class="diary-cal-grid" id="diary-cal-grid"></div>
+          <div class="stats-cal-grid" id="stats-cal-grid"></div>
         </div>
 
-        <div class="stats-notes-panel" id="stats-notes-panel"></div>
-        <div class="stats-add-btn" onclick="diaryOpenAddSelected()">+ Добавить настроение</div>
+        <div class="stats-day-card" id="stats-day-card">
+          <div class="stats-day-handle"></div>
+          <div class="statsp-day-h" id="statsp-day-h">Практики за 25 апреля 2026</div>
+          <div class="statsp-day-arrows">
+            <div class="arr" onclick="statsDayPrev()">‹</div>
+            <div class="arr" onclick="statsDayNext()">›</div>
+          </div>
+          <div class="statsp-day-list" id="statsp-day-list"></div>
+        </div>
       </section>
 
       <!-- ========== BREATHING ========== -->
@@ -1302,8 +1539,6 @@
           <div class="mood-label">Напряжение</div>
         </div>
 
-        <div class="comp-duration">Продолжительность: 5 минут</div>
-
         <div class="comp-btn comp-btn-repeat" onclick="repeatPractice()">Повторить практику</div>
         <div class="comp-btn comp-btn-exit"   onclick="exitPractice()">Завершить и выйти</div>
       </section>
@@ -1478,7 +1713,7 @@
     completion: 'nav-practices',
     sleep: 'nav-sleep',
     diary: 'nav-diary',
-    zametka: 'nav-stats',
+    zametka: 'nav-diary',
     stats: 'nav-stats',
     settings: 'nav-settings',
   };
@@ -1496,9 +1731,10 @@
     if (navId) document.getElementById(navId).classList.add('active');
 
     if (name === 'favorites') renderFavorites();
-    if (name === 'stats') { renderDiary(); renderStatsScreen(); }
+    if (name === 'diary') { renderDiary(); renderStatsScreen(); }
     if (name === 'history') renderHistoryScreen();
     if (name === 'home') { renderHomeRecentPractices(); renderHomeProgress(); }
+    if (name === 'stats') renderStatsPage();
   }
 
   // ====== Practice flow (Защитный круг) ======
@@ -1547,9 +1783,18 @@
   function logPracticeCompletion(id) {
     const p = PRACTICES.find(x => x.id === id);
     if (!p) return;
-    practiceHistory.unshift({ id, name: p.name, cat: p.cat, ts: Date.now() });
+    practiceHistory.unshift({ id, name: p.name, cat: p.cat, ts: Date.now(), mood: null });
     if (practiceHistory.length > 50) practiceHistory = practiceHistory.slice(0, 50);
     persistHistory();
+  }
+  function setMoodOnLastCompletion(mood) {
+    if (practiceHistory.length === 0) return;
+    practiceHistory[0].mood = mood;
+    persistHistory();
+  }
+  function isoFromTs(ts) {
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   }
 
   function openPractice(id) {
@@ -1569,7 +1814,6 @@
   function finishTip() {
     logPracticeCompletion(lastPracticeId);
     document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('comp-card-img').style.display = 'none';
     showScreen('completion');
   }
 
@@ -1667,7 +1911,6 @@
     }
     logPracticeCompletion(lastPracticeId);
     document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('comp-card-img').style.display = '';
     showScreen('completion');
   }
 
@@ -1675,8 +1918,10 @@
     showScreen('home');
   }
 
+  const MOOD_BY_IDX = ['pos', 'neu', 'neg'];
   function selectMood(idx) {
     document.querySelectorAll('.mood-card').forEach(c => c.classList.toggle('active', Number(c.dataset.mood) === idx));
+    setMoodOnLastCompletion(MOOD_BY_IDX[idx]);
   }
 
   // ====== DIARY (Дневник) ======
@@ -2065,11 +2310,199 @@
       time: document.getElementById('zam-time').textContent
     });
     persistMoods();
-    showScreen('stats');
+    showScreen('diary');
   }
 
   function zamClose() {
-    showScreen('stats');
+    showScreen('diary');
+  }
+
+  // ========== STATS PAGE ==========
+  const _now = new Date();
+  const STATS_TODAY = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+
+  // Selected day on the stats calendar (defaults to today). Tracks month/year so the
+  // highlight survives navigation between months.
+  let statsSel = {
+    year: STATS_TODAY.getFullYear(),
+    month: STATS_TODAY.getMonth(),
+    day: STATS_TODAY.getDate(),
+  };
+  const statsCursor = { year: STATS_TODAY.getFullYear(), month: STATS_TODAY.getMonth() };
+
+  // Group completed practices by ISO date.
+  function practicesByDate() {
+    const m = {};
+    for (const e of practiceHistory) {
+      const iso = isoFromTs(e.ts);
+      (m[iso] = m[iso] || []).push(e);
+    }
+    return m;
+  }
+
+  // Pick representative mood for a day: most positive wins (pos > neu > neg).
+  function dayDominantMood(entries) {
+    if (!entries || entries.length === 0) return null;
+    const c = { pos: 0, neu: 0, neg: 0 };
+    for (const e of entries) if (e.mood) c[e.mood]++;
+    if (c.pos === 0 && c.neu === 0 && c.neg === 0) return null;
+    if (c.pos >= c.neu && c.pos >= c.neg) return 'pos';
+    if (c.neu >= c.neg) return 'neu';
+    return 'neg';
+  }
+
+  // Render the whole stats page.
+  function renderStatsPage() {
+    renderStatsChart();
+    renderStatsCalendar();
+    renderStatsDayCard();
+  }
+
+  function statsSetTab(range) {
+    if (range !== 'week') return; // месяц/год — заглушка
+    document.querySelectorAll('.stats-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.range === range);
+    });
+  }
+
+  // Last 7 days ending on STATS_TODAY (today is the rightmost bar).
+  function currentWeekDates() {
+    const week = [];
+    for (let i = 6; i >= 0; i--) {
+      const dd = new Date(
+        STATS_TODAY.getFullYear(),
+        STATS_TODAY.getMonth(),
+        STATS_TODAY.getDate() - i
+      );
+      week.push(dd);
+    }
+    return week;
+  }
+
+  // Heights match the 3-tier grid drawn behind the bars.
+  const BAR_H_BY_MOOD = { pos: 100, neu: 65, neg: 30 };
+
+  function renderStatsChart() {
+    const bars = document.getElementById('stats-chart-bars');
+    const labels = document.getElementById('stats-chart-labels');
+    if (!bars || !labels) return;
+    const week = currentWeekDates();
+    const byDate = practicesByDate();
+    const todayIso = isoFromTs(STATS_TODAY.getTime());
+
+    let barsHtml = '';
+    let labelsHtml = '';
+    week.forEach(dd => {
+      const iso = `${dd.getFullYear()}-${pad2(dd.getMonth() + 1)}-${pad2(dd.getDate())}`;
+      const mood = dayDominantMood(byDate[iso]);
+      const isFuture = dd.getTime() > STATS_TODAY.getTime();
+      if (mood && !isFuture) {
+        barsHtml += `<div class="bar-wrap"><div class="bar ${mood}" style="height:${BAR_H_BY_MOOD[mood]}px"></div></div>`;
+      } else {
+        barsHtml += `<div class="bar-wrap"><div class="bar empty"></div></div>`;
+      }
+      const lbl = `${pad2(dd.getDate())}.${pad2(dd.getMonth() + 1)}`;
+      labelsHtml += `<div class="lbl ${iso === todayIso ? 'today' : ''}">${lbl}</div>`;
+    });
+    bars.innerHTML = barsHtml;
+    labels.innerHTML = labelsHtml;
+  }
+
+  function renderStatsCalendar() {
+    const grid = document.getElementById('stats-cal-grid');
+    if (!grid) return;
+    document.getElementById('stats-cal-month').textContent =
+      `${MONTH_NOMINATIVE[statsCursor.month]} ${statsCursor.year}`;
+
+    let html = '';
+    for (const d of ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']) {
+      html += `<div class="stats-cal-day-h">${d}</div>`;
+    }
+    const first = new Date(statsCursor.year, statsCursor.month, 1);
+    const lastDay = new Date(statsCursor.year, statsCursor.month + 1, 0).getDate();
+    const prevLastDay = new Date(statsCursor.year, statsCursor.month, 0).getDate();
+    let firstDow = first.getDay();
+    firstDow = firstDow === 0 ? 6 : firstDow - 1;
+
+    const todayIso = isoFromTs(STATS_TODAY.getTime());
+    const byDate = practicesByDate();
+
+    for (let i = firstDow; i > 0; i--) {
+      html += `<div class="stats-cal-cell dim">${prevLastDay - i + 1}</div>`;
+    }
+    for (let d = 1; d <= lastDay; d++) {
+      const iso = `${statsCursor.year}-${pad2(statsCursor.month + 1)}-${pad2(d)}`;
+      let cls = 'stats-cal-cell';
+      const isToday = iso === todayIso;
+      const entries = byDate[iso];
+      const hasPractice = !!entries;
+      const mood = hasPractice ? (dayDominantMood(entries) || 'none') : null;
+      if (isToday) cls += ' today';
+      if (hasPractice) cls += ' has-mood';
+      const isSelected = statsCursor.year === statsSel.year &&
+                         statsCursor.month === statsSel.month &&
+                         d === statsSel.day;
+      if (isSelected && !isToday) cls += ' selected';
+      const dot = (hasPractice && !isToday) ? `<span class="mood-dot ${mood}"></span>` : '';
+      html += `<div class="${cls}" onclick="statsSelectDay(${d})">${dot}<span class="cell-num">${d}</span></div>`;
+    }
+    const cells = firstDow + lastDay;
+    const total = Math.ceil(cells / 7) * 7;
+    for (let d = 1; d <= total - cells; d++) {
+      html += `<div class="stats-cal-cell dim">${d}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function statsPrevMonth() {
+    statsCursor.month--;
+    if (statsCursor.month < 0) { statsCursor.month = 11; statsCursor.year--; }
+    renderStatsCalendar();
+    renderStatsDayCard();
+  }
+  function statsNextMonth() {
+    statsCursor.month++;
+    if (statsCursor.month > 11) { statsCursor.month = 0; statsCursor.year++; }
+    renderStatsCalendar();
+    renderStatsDayCard();
+  }
+  function statsSelectDay(d) {
+    statsSel = { year: statsCursor.year, month: statsCursor.month, day: d };
+    renderStatsCalendar();
+    renderStatsDayCard();
+  }
+  function statsDayPrev() {
+    if (statsSel.day > 1) {
+      statsSel = { ...statsSel, day: statsSel.day - 1 };
+      renderStatsCalendar();
+      renderStatsDayCard();
+    }
+  }
+  function statsDayNext() {
+    const lastDay = new Date(statsSel.year, statsSel.month + 1, 0).getDate();
+    if (statsSel.day < lastDay) {
+      statsSel = { ...statsSel, day: statsSel.day + 1 };
+      renderStatsCalendar();
+      renderStatsDayCard();
+    }
+  }
+
+  function renderStatsDayCard() {
+    const card = document.getElementById('stats-day-card');
+    const h = document.getElementById('statsp-day-h');
+    const list = document.getElementById('statsp-day-list');
+    const iso = `${statsSel.year}-${pad2(statsSel.month + 1)}-${pad2(statsSel.day)}`;
+    const entries = practicesByDate()[iso] || [];
+    // Empty state per Figma 14:160: hide the bottom card entirely when no practices.
+    if (entries.length === 0) {
+      card.style.display = 'none';
+      return;
+    }
+    card.style.display = '';
+    h.textContent = `Практики за ${statsSel.day} ${MONTH_GENITIVE[statsSel.month]} ${statsSel.year}`;
+    list.innerHTML = entries.map(e =>
+      `<div class="statsp-day-row cat-${e.cat}">${escapeHtml(e.name)}</div>`
+    ).join('');
   }
 
   // ====== Init ======
