@@ -2,7 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>UX Прототип</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,14 +14,15 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    overscroll-behavior: none;
   }
   body {
-    background: linear-gradient(135deg, #1a1235 0%, #0d0820 100%);
+    background: #221C6A;
     color: #fff;
   }
 
@@ -1626,39 +1630,48 @@
   </div>
 
 <script>
-  // Fit phone frame into the *visible* viewport (excluding browser chrome bars).
-  // Uses visualViewport API which reports the actual visible area, not the layout area.
+  // Fit phone frame into the *visible* viewport, accounting for browser chrome bars.
+  // Strategy: read both visualViewport (excludes chrome) AND innerHeight (sometimes
+  // matches visualViewport, sometimes the layout viewport). Use the SMALLER value
+  // for height — that's the safe bound that guarantees no overlap with shutters.
   (function () {
     const PHONE_W = 412;
     const PHONE_H = 917;
-    const MAX_SCALE = 1.0;
-    const MARGIN = 4; // tiny safety buffer inside the visible area
+    const MARGIN = 4;
     function fit() {
       const el = document.querySelector('.phone-frame');
       if (!el) return;
       const vv = window.visualViewport;
-      const w = vv ? vv.width  : window.innerWidth;
-      const h = vv ? vv.height : window.innerHeight;
+      const winW = window.innerWidth  || document.documentElement.clientWidth;
+      const winH = window.innerHeight || document.documentElement.clientHeight;
+      // Take the smaller of visualViewport vs innerWidth/Height — defensive against
+      // browsers where innerHeight still includes the address-bar area.
+      const w = vv ? Math.min(vv.width,  winW) : winW;
+      const h = vv ? Math.min(vv.height, winH) : winH;
       const offsetTop  = vv ? vv.offsetTop  : 0;
       const offsetLeft = vv ? vv.offsetLeft : 0;
       const scale = Math.min(
-        MAX_SCALE,
         (w - MARGIN * 2) / PHONE_W,
         (h - MARGIN * 2) / PHONE_H
       );
-      // Center phone inside the visible area (offsetTop/Left compensate
-      // for the address bar / search shutter occupying the top of layout).
+      const safeScale = Math.max(0.1, Math.min(2, scale));
       const cx = offsetLeft + w / 2;
       const cy = offsetTop  + h / 2;
-      el.style.left = cx + 'px';
-      el.style.top  = cy + 'px';
-      el.style.marginLeft = (-PHONE_W / 2) + 'px';
-      el.style.marginTop  = (-PHONE_H / 2) + 'px';
-      el.style.transform = 'scale(' + Math.max(0.1, scale) + ')';
+      // Use cssText so the inline override is applied atomically and wins over
+      // any stylesheet rule of equal specificity.
+      el.style.cssText +=
+        ';position:fixed' +
+        ';left:' + cx + 'px' +
+        ';top:'  + cy + 'px' +
+        ';margin-left:' + (-PHONE_W / 2) + 'px' +
+        ';margin-top:'  + (-PHONE_H / 2) + 'px' +
+        ';transform:scale(' + safeScale + ')' +
+        ';transform-origin:center center';
     }
     window.addEventListener('resize', fit);
     window.addEventListener('orientationchange', fit);
     window.addEventListener('load', fit);
+    window.addEventListener('pageshow', fit);
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', fit);
       window.visualViewport.addEventListener('scroll', fit);
@@ -1668,6 +1681,10 @@
     } else {
       fit();
     }
+    // Re-run a few times after load to catch late chrome-bar adjustments on mobile.
+    setTimeout(fit, 100);
+    setTimeout(fit, 500);
+    setTimeout(fit, 1500);
   })();
 
   // Reset persisted state on every page load
