@@ -12,25 +12,26 @@
   html, body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     height: 100%;
+    width: 100%;
     overflow: hidden;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
   }
   body {
     background: linear-gradient(135deg, #1a1235 0%, #0d0820 100%);
-    height: 100vh;
-    height: 100svh;
-    display: flex; justify-content: center; align-items: center;
-    padding: 16px; color: #fff;
+    color: #fff;
   }
 
   .phone-frame {
+    position: fixed;
     width: 412px; height: 917px;
-    position: relative;
+    top: 50%; left: 50%;
+    margin-top: -458.5px; margin-left: -206px;
     border-radius: 36px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 8px #111;
     background: #221C6A; overflow: hidden;
-    flex-shrink: 0;
     transform-origin: center center;
-    transform: scale(0.7);
+    transform: scale(0.5);
   }
   .screen-area {
     position: absolute; top: 0; left: 0;
@@ -986,10 +987,7 @@
   /* On phones/small screens: fit the whole phone mockup to the viewport,
      keep absolute pixel layout intact by scaling the frame as a single unit. */
   @media (max-width: 768px) {
-    body {
-      padding: 0;
-      background: #221C6A;
-    }
+    body { background: #221C6A; }
     .phone-frame {
       border-radius: 24px;
       box-shadow: none;
@@ -1628,29 +1626,42 @@
   </div>
 
 <script>
-  // Fit phone frame into viewport with safety margin for browser chrome
+  // Fit phone frame into the *visible* viewport (excluding browser chrome bars).
+  // Uses visualViewport API which reports the actual visible area, not the layout area.
   (function () {
     const PHONE_W = 412;
     const PHONE_H = 917;
     const MAX_SCALE = 0.7;
-    const MARGIN_X = 24;
-    const MARGIN_Y = 80;
+    const MARGIN = 16; // breathing room inside visible area
     function fit() {
       const el = document.querySelector('.phone-frame');
       if (!el) return;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const s = Math.min(
+      const vv = window.visualViewport;
+      const w = vv ? vv.width  : window.innerWidth;
+      const h = vv ? vv.height : window.innerHeight;
+      const offsetTop  = vv ? vv.offsetTop  : 0;
+      const offsetLeft = vv ? vv.offsetLeft : 0;
+      const scale = Math.min(
         MAX_SCALE,
-        (w - MARGIN_X * 2) / PHONE_W,
-        (h - MARGIN_Y * 2) / PHONE_H
+        (w - MARGIN * 2) / PHONE_W,
+        (h - MARGIN * 2) / PHONE_H
       );
-      el.style.transform = 'scale(' + Math.max(0.1, s) + ')';
+      // Center phone inside the visible area (offsetTop/Left compensate
+      // for the address bar / search shutter occupying the top of layout).
+      const cx = offsetLeft + w / 2;
+      const cy = offsetTop  + h / 2;
+      el.style.left = cx + 'px';
+      el.style.top  = cy + 'px';
+      el.style.marginLeft = (-PHONE_W / 2) + 'px';
+      el.style.marginTop  = (-PHONE_H / 2) + 'px';
+      el.style.transform = 'scale(' + Math.max(0.1, scale) + ')';
     }
     window.addEventListener('resize', fit);
     window.addEventListener('orientationchange', fit);
+    window.addEventListener('load', fit);
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', fit);
+      window.visualViewport.addEventListener('scroll', fit);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', fit);
