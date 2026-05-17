@@ -9,12 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     background: linear-gradient(135deg, #1a1235 0%, #0d0820 100%);
-    min-height: 100vh;
-    display: flex; justify-content: center; align-items: flex-start;
-    padding: 32px 16px; color: #fff;
+    height: 100vh;
+    height: 100svh;
+    display: flex; justify-content: center; align-items: center;
+    padding: 16px; color: #fff;
   }
 
   .phone-frame {
@@ -23,6 +28,10 @@
     border-radius: 36px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 8px #111;
     background: #221C6A; overflow: hidden;
+    flex-shrink: 0;
+    transform-origin: center center;
+    transform: scale(min(1, calc((100vw - 48px) / 412), calc((100vh - 48px) / 917)));
+    transform: scale(min(1, calc((100vw - 48px) / 412), calc((100svh - 48px) / 917)));
   }
   .screen-area {
     position: absolute; top: 0; left: 0;
@@ -978,24 +987,13 @@
   /* On phones/small screens: fit the whole phone mockup to the viewport,
      keep absolute pixel layout intact by scaling the frame as a single unit. */
   @media (max-width: 768px) {
-    html { height: 100%; }
     body {
       padding: 0;
-      margin: 0;
       background: #221C6A;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      min-height: 100vh;
-      min-height: 100svh;
-      height: 100vh;
-      height: 100svh;
     }
     .phone-frame {
       border-radius: 0;
       box-shadow: none;
-      flex-shrink: 0;
-      transform-origin: center center;
       transform: scale(min(calc(100vw / 412), calc(100vh / 917)));
       transform: scale(min(calc(100vw / 412), calc(100svh / 917)));
     }
