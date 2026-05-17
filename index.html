@@ -30,8 +30,7 @@
     background: #221C6A; overflow: hidden;
     flex-shrink: 0;
     transform-origin: center center;
-    transform: scale(min(0.7, calc((100vw - 48px) / 412), calc((100vh - 140px) / 917)));
-    transform: scale(min(0.7, calc((100vw - 48px) / 412), calc((100svh - 140px) / 917)));
+    transform: scale(0.7);
   }
   .screen-area {
     position: absolute; top: 0; left: 0;
@@ -994,8 +993,6 @@
     .phone-frame {
       border-radius: 24px;
       box-shadow: none;
-      transform: scale(min(0.75, calc((100vw - 24px) / 412), calc((100vh - 180px) / 917)));
-      transform: scale(min(0.75, calc((100vw - 24px) / 412), calc((100svh - 180px) / 917)));
     }
   }
 </style>
@@ -1631,6 +1628,37 @@
   </div>
 
 <script>
+  // Fit phone frame into viewport with safety margin for browser chrome
+  (function () {
+    const PHONE_W = 412;
+    const PHONE_H = 917;
+    const MAX_SCALE = 0.7;
+    const MARGIN_X = 24;
+    const MARGIN_Y = 80;
+    function fit() {
+      const el = document.querySelector('.phone-frame');
+      if (!el) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const s = Math.min(
+        MAX_SCALE,
+        (w - MARGIN_X * 2) / PHONE_W,
+        (h - MARGIN_Y * 2) / PHONE_H
+      );
+      el.style.transform = 'scale(' + Math.max(0.1, s) + ')';
+    }
+    window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', fit);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', fit);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fit);
+    } else {
+      fit();
+    }
+  })();
+
   // Reset persisted state on every page load
   try {
     localStorage.removeItem('moodsByDate');
