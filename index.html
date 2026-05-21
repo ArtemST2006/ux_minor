@@ -1163,7 +1163,7 @@
         <div class="avatar"></div>
         <div class="greet">Привет, Анна!</div>
         <div class="date">Чт, 25 янв 2026</div>
-        <div class="stub-back" onclick="showScreen('home')">
+        <div class="stub-back" onclick="exitPractice()">
           <svg viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 1 L3 7 L9 13" stroke="#FFB6DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1708,7 +1708,7 @@
   ];
 
   // Pre-liked practices (matching favorites Figma frame)
-  const favs = new Set(['breathing-1', 'physical-1', 'thinking-1']);
+  const favs = new Set();
 
   // ====== Heart SVG variants ======
   const HEART_FILLED  = '<svg viewBox="0 0 23 19" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M16.675 0C14.674 0 12.7535 0.84 11.5 2.16C10.2465 0.84 8.326 0 6.325 0C2.78 0 0 2.5 0 5.69C0 9.6 3.91 12.8 9.83 17.64L11.5 19L13.17 17.64C19.09 12.8 23 9.6 23 5.69C23 2.5 20.22 0 16.675 0Z"/></svg>';
@@ -1797,7 +1797,9 @@
     stats: 'nav-stats',
     settings: 'nav-settings',
   };
+  let currentScreenName = 'home';
   function showScreen(name) {
+    currentScreenName = name;
     if (name !== 'practice' && practiceState.intervalId) {
       clearInterval(practiceState.intervalId);
       practiceState.intervalId = null;
@@ -1850,6 +1852,8 @@
 
   const practiceState = { stepIdx: 0, remainingMs: 0, paused: false, intervalId: null };
   let lastPracticeId = 'breathing-1';
+  // Screen the current practice was opened from — used to return there on close.
+  let practiceOrigin = 'home';
 
   // ====== Practice history (persisted) ======
   let practiceHistory = [];
@@ -1881,6 +1885,7 @@
     const p = PRACTICES.find(x => x.id === id);
     if (!p) return;
     lastPracticeId = id;
+    practiceOrigin = currentScreenName;
     if (id === 'breathing-1') { startPractice(); return; }
     if (id === 'thinking-1')  { openTip(); return; }
     document.getElementById('practice-stub-name').textContent = p.name;
@@ -1995,7 +2000,7 @@
   }
 
   function exitPractice() {
-    showScreen('home');
+    showScreen(practiceOrigin);
   }
 
   const MOOD_BY_IDX = ['pos', 'neu', 'neg'];
@@ -2431,6 +2436,18 @@
     return 'neg';
   }
 
+  // Average mood for a day on a 1–3 scale (neg=1, neu=2, pos=3).
+  // null if the day has no rated practices.
+  const MOOD_SCORE = { neg: 1, neu: 2, pos: 3 };
+  function dayAverageMood(entries) {
+    if (!entries || entries.length === 0) return null;
+    let sum = 0, count = 0;
+    for (const e of entries) {
+      if (e.mood && MOOD_SCORE[e.mood]) { sum += MOOD_SCORE[e.mood]; count++; }
+    }
+    return count === 0 ? null : sum / count;
+  }
+
   // Render the whole stats page.
   function renderStatsPage() {
     renderStatsChart();
@@ -2474,10 +2491,14 @@
     let labelsHtml = '';
     week.forEach(dd => {
       const iso = `${dd.getFullYear()}-${pad2(dd.getMonth() + 1)}-${pad2(dd.getDate())}`;
-      const mood = dayDominantMood(byDate[iso]);
+      const avg = dayAverageMood(byDate[iso]);
       const isFuture = dd.getTime() > STATS_TODAY.getTime();
-      if (mood && !isFuture) {
-        barsHtml += `<div class="bar-wrap"><div class="bar ${mood}" style="height:${BAR_H_BY_MOOD[mood]}px"></div></div>`;
+      if (avg != null && !isFuture) {
+        // Bar height interpolates linearly between the neg and pos tiers;
+        // colour follows the nearest tier to the average.
+        const height = Math.round(BAR_H_BY_MOOD.neg + (avg - 1) * (BAR_H_BY_MOOD.pos - BAR_H_BY_MOOD.neg) / 2);
+        const tone = avg >= 2.5 ? 'pos' : (avg >= 1.5 ? 'neu' : 'neg');
+        barsHtml += `<div class="bar-wrap"><div class="bar ${tone}" style="height:${height}px"></div></div>`;
       } else {
         barsHtml += `<div class="bar-wrap"><div class="bar empty"></div></div>`;
       }
@@ -2584,6 +2605,124 @@
       `<div class="statsp-day-row cat-${e.cat}">${escapeHtml(e.name)}</div>`
     ).join('');
   }
+
+  // ====== Demo seed (test data for diary + stats) ======
+  // Runs once per browser (gated by localStorage flag) so it doesn't clobber
+  // anything the user types in afterward. Clear `demoSeeded` to re-seed.
+  function seedDemoData() {
+    if (localStorage.getItem('demoSeeded') === 'v2') return;
+
+    // --- DIARY: moods across April 2026 (the diary's default cursor month).
+    // Mix of moods, several days with multiple entries, some empty days.
+    const demoMoods = {
+      '2026-04-02': [
+        {mood:'pos', note:'Утренняя пробежка зарядила энергией.', time:'08:15'},
+      ],
+      '2026-04-03': [
+        {mood:'neu', note:'Спокойный рабочий день, ничего особенного.', time:'18:40'},
+      ],
+      '2026-04-05': [
+        {mood:'pos', note:'Встретились с подругой в кафе — давно так не смеялась.', time:'13:20'},
+        {mood:'pos', note:'Вечером дочитала книгу, очень понравилась концовка.', time:'22:05'},
+      ],
+      '2026-04-07': [
+        {mood:'neg', note:'Тяжёлый созвон, осталось ощущение усталости.', time:'16:50'},
+      ],
+      '2026-04-08': [
+        {mood:'neu', note:'', time:'12:00'},
+        {mood:'pos', note:'Прогулка в парке помогла переключиться.', time:'19:30'},
+      ],
+      '2026-04-10': [
+        {mood:'pos', note:'Закрыла большую задачу — наконец-то!', time:'17:45'},
+      ],
+      '2026-04-11': [
+        {mood:'neg', note:'Плохо спала, весь день будто в тумане.', time:'10:10'},
+      ],
+      '2026-04-12': [
+        {mood:'neu', note:'Выходной прошёл спокойно, отдохнула дома.', time:'15:00'},
+      ],
+      '2026-04-14': [
+        {mood:'pos', note:'Получилось медитировать 20 минут без отвлечений.', time:'07:30'},
+        {mood:'neu', note:'', time:'14:00'},
+        {mood:'pos', note:'Приятный ужин с семьёй.', time:'20:15'},
+      ],
+      '2026-04-16': [
+        {mood:'neg', note:'Срочная правка перед дедлайном, понервничала.', time:'15:25'},
+      ],
+      '2026-04-17': [
+        {mood:'pos', note:'Хорошие новости по проекту.', time:'11:05'},
+      ],
+      '2026-04-18': [
+        {mood:'neu', note:'', time:'13:30'},
+      ],
+      '2026-04-19': [
+        {mood:'pos', note:'Йога утром — давно не чувствовала такой лёгкости.', time:'08:00'},
+        {mood:'pos', note:'Вечер с книгой и какао.', time:'21:40'},
+      ],
+      '2026-04-21': [
+        {mood:'neg', note:'Поссорились по мелочи, обидно.', time:'19:20'},
+      ],
+      '2026-04-22': [
+        {mood:'neu', note:'Помирились, но осадок остался.', time:'09:40'},
+        {mood:'pos', note:'К вечеру отпустило.', time:'22:10'},
+      ],
+      '2026-04-23': [
+        {mood:'pos', note:'Сходила на выставку, очень вдохновилась.', time:'16:30'},
+      ],
+      '2026-04-24': [
+        {mood:'neu', note:'Обычный день, без эмоциональных всплесков.', time:'18:00'},
+      ],
+      '2026-04-25': [
+        {mood:'pos', note:'С утра сделала практику дыхания — отличное начало дня.', time:'08:20'},
+        {mood:'neu', note:'', time:'13:15'},
+      ],
+    };
+    for (const k in demoMoods) {
+      if (!moodsByDate[k]) moodsByDate[k] = demoMoods[k];
+    }
+    persistMoods();
+
+    // --- STATS: practice completions across the last 14 days (anchored to STATS_TODAY).
+    // Mix of categories, with moods assigned to most entries.
+    const _t = new Date();
+    const _today = new Date(_t.getFullYear(), _t.getMonth(), _t.getDate());
+    const demoPlan = [
+      // [daysAgo, hour, minute, practiceId, mood]
+      [0,  9, 15, 'breathing-1', 'pos'],
+      [0, 14, 30, 'thinking-1',  'pos'],
+      [1, 20, 45, 'physical-2',  'neu'],
+      [2,  8,  5, 'breathing-2', 'pos'],
+      [2, 19, 10, 'thinking-3',  'neu'],
+      [3, 12, 40, 'physical-1',  'neg'],
+      [4,  7, 50, 'breathing-1', 'pos'],
+      [4, 22,  0, 'thinking-2',  'pos'],
+      [5, 18, 20, 'physical-3',  'neu'],
+      [6, 10, 30, 'breathing-4', 'pos'],
+      [7, 21, 15, 'thinking-1',  'neg'],
+      [8,  9,  0, 'breathing-3', 'neu'],
+      [9, 17, 25, 'physical-2',  'pos'],
+      [10, 8, 40, 'breathing-1', 'pos'],
+      [11,19,  5, 'thinking-3',  'neu'],
+      [12, 7, 30, 'physical-1',  'pos'],
+      [13,20, 50, 'breathing-2', 'neg'],
+    ];
+    const newEntries = [];
+    for (const [daysAgo, h, m, pid, mood] of demoPlan) {
+      const p = PRACTICES.find(x => x.id === pid);
+      if (!p) continue;
+      const d = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate() - daysAgo, h, m, 0);
+      newEntries.push({ id: pid, name: p.name, cat: p.cat, ts: d.getTime(), mood });
+    }
+    // History is sorted newest-first elsewhere; sort by ts desc here.
+    newEntries.sort((a, b) => b.ts - a.ts);
+    if (practiceHistory.length === 0) {
+      practiceHistory = newEntries;
+      persistHistory();
+    }
+
+    localStorage.setItem('demoSeeded', 'v2');
+  }
+  seedDemoData();
 
   // ====== Init ======
   renderCategoryList('breathing', 'breathing-list');
