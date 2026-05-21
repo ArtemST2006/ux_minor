@@ -2606,11 +2606,13 @@
     ).join('');
   }
 
-  // ====== Demo seed (test data for diary + stats) ======
-  // Runs once per browser (gated by localStorage flag) so it doesn't clobber
-  // anything the user types in afterward. Clear `demoSeeded` to re-seed.
+  // ====== Demo seed (test data for favorites + diary + stats) ======
+  // Re-seeds on every load (persisted state is reset above) so the demo
+  // always opens with a fully populated app.
   function seedDemoData() {
-    if (localStorage.getItem('demoSeeded') === 'v2') return;
+    // --- FAVORITES: pre-like 5 practices spanning all three categories.
+    ['breathing-1', 'breathing-3', 'physical-2', 'thinking-1', 'thinking-3']
+      .forEach(id => favs.add(id));
 
     // --- DIARY: moods across April 2026 (the diary's default cursor month).
     // Mix of moods, several days with multiple entries, some empty days.
@@ -2719,8 +2721,6 @@
       practiceHistory = newEntries;
       persistHistory();
     }
-
-    localStorage.setItem('demoSeeded', 'v2');
   }
   seedDemoData();
 
